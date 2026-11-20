@@ -1,0 +1,404 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		B10000000000000000000201 /* GravityWatchFace3DApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000101 /* GravityWatchFace3DApp.swift */; };
+		B10000000000000000000202 /* WatchFaceTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000102 /* WatchFaceTheme.swift */; };
+		B10000000000000000000203 /* MotionManager3D.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000103 /* MotionManager3D.swift */; };
+		B10000000000000000000204 /* ProceduralTextureGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000104 /* ProceduralTextureGenerator.swift */; };
+		B10000000000000000000205 /* GeometryFactory3D.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000105 /* GeometryFactory3D.swift */; };
+		B10000000000000000000206 /* GravityScene3D.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000106 /* GravityScene3D.swift */; };
+		B10000000000000000000207 /* WatchFace3DView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000107 /* WatchFace3DView.swift */; };
+		B10000000000000000000208 /* WatchClockOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000108 /* WatchClockOverlayView.swift */; };
+		B10000000000000000000209 /* ThemeSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000109 /* ThemeSettingsView.swift */; };
+		B10000000000000000000210 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000110 /* Assets.xcassets */; };
+		B10000000000000000000211 /* DiamondShader3D.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000112 /* DiamondShader3D.swift */; };
+		B10000000000000000000212 /* PBRTextures in Resources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000113 /* PBRTextures */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		B10000000000000000000011 /* GravityWatchFace3D.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GravityWatchFace3D.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B10000000000000000000101 /* GravityWatchFace3DApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GravityWatchFace3DApp.swift; sourceTree = "<group>"; };
+		B10000000000000000000102 /* WatchFaceTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchFaceTheme.swift; sourceTree = "<group>"; };
+		B10000000000000000000103 /* MotionManager3D.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotionManager3D.swift; sourceTree = "<group>"; };
+		B10000000000000000000104 /* ProceduralTextureGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProceduralTextureGenerator.swift; sourceTree = "<group>"; };
+		B10000000000000000000105 /* GeometryFactory3D.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeometryFactory3D.swift; sourceTree = "<group>"; };
+		B10000000000000000000106 /* GravityScene3D.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GravityScene3D.swift; sourceTree = "<group>"; };
+		B10000000000000000000107 /* WatchFace3DView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchFace3DView.swift; sourceTree = "<group>"; };
+		B10000000000000000000108 /* WatchClockOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchClockOverlayView.swift; sourceTree = "<group>"; };
+		B10000000000000000000109 /* ThemeSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeSettingsView.swift; sourceTree = "<group>"; };
+		B10000000000000000000110 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		B10000000000000000000111 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B10000000000000000000112 /* DiamondShader3D.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiamondShader3D.swift; sourceTree = "<group>"; };
+		B10000000000000000000113 /* PBRTextures */ = {isa = PBXFileReference; lastKnownFileType = folder; path = PBRTextures; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		B10000000000000000000013 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		B10000000000000000000002 = {
+			isa = PBXGroup;
+			children = (
+				B10000000000000000000004 /* GravityWatchFace3D */,
+				B10000000000000000000003 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		B10000000000000000000003 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B10000000000000000000011 /* GravityWatchFace3D.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		B10000000000000000000004 /* GravityWatchFace3D */ = {
+			isa = PBXGroup;
+			children = (
+				B10000000000000000000101 /* GravityWatchFace3DApp.swift */,
+				B10000000000000000000005 /* Models */,
+				B10000000000000000000006 /* Services */,
+				B10000000000000000000007 /* Scene3D */,
+				B10000000000000000000008 /* Views */,
+				B10000000000000000000113 /* PBRTextures */,
+				B10000000000000000000110 /* Assets.xcassets */,
+				B10000000000000000000111 /* Info.plist */,
+			);
+			path = GravityWatchFace3D;
+			sourceTree = "<group>";
+		};
+		B10000000000000000000005 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				B10000000000000000000102 /* WatchFaceTheme.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		B10000000000000000000006 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				B10000000000000000000103 /* MotionManager3D.swift */,
+				B10000000000000000000104 /* ProceduralTextureGenerator.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		B10000000000000000000007 /* Scene3D */ = {
+			isa = PBXGroup;
+			children = (
+				B10000000000000000000105 /* GeometryFactory3D.swift */,
+				B10000000000000000000112 /* DiamondShader3D.swift */,
+				B10000000000000000000106 /* GravityScene3D.swift */,
+			);
+			path = Scene3D;
+			sourceTree = "<group>";
+		};
+		B10000000000000000000008 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				B10000000000000000000107 /* WatchFace3DView.swift */,
+				B10000000000000000000108 /* WatchClockOverlayView.swift */,
+				B10000000000000000000109 /* ThemeSettingsView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		B10000000000000000000010 /* GravityWatchFace3D */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B10000000000000000000023 /* Build configuration list for PBXNativeTarget "GravityWatchFace3D" */;
+			buildPhases = (
+				B10000000000000000000012 /* Sources */,
+				B10000000000000000000013 /* Frameworks */,
+				B10000000000000000000014 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = GravityWatchFace3D;
+			productName = GravityWatchFace3D;
+			productReference = B10000000000000000000011 /* GravityWatchFace3D.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		B10000000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1600;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					B10000000000000000000010 = {
+						CreatedOnToolsVersion = 16.0;
+					};
+				};
+			};
+			buildConfigurationList = B10000000000000000000020 /* Build configuration list for PBXProject "GravityWatchFace3D" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = zh-Hans;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				"zh-Hans",
+				Base,
+			);
+			mainGroup = B10000000000000000000002;
+			productRefGroup = B10000000000000000000003 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				B10000000000000000000010 /* GravityWatchFace3D */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		B10000000000000000000014 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B10000000000000000000210 /* Assets.xcassets in Resources */,
+				B10000000000000000000212 /* PBRTextures in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		B10000000000000000000012 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B10000000000000000000201 /* GravityWatchFace3DApp.swift in Sources */,
+				B10000000000000000000202 /* WatchFaceTheme.swift in Sources */,
+				B10000000000000000000203 /* MotionManager3D.swift in Sources */,
+				B10000000000000000000204 /* ProceduralTextureGenerator.swift in Sources */,
+				B10000000000000000000205 /* GeometryFactory3D.swift in Sources */,
+				B10000000000000000000211 /* DiamondShader3D.swift in Sources */,
+				B10000000000000000000206 /* GravityScene3D.swift in Sources */,
+				B10000000000000000000207 /* WatchFace3DView.swift in Sources */,
+				B10000000000000000000208 /* WatchClockOverlayView.swift in Sources */,
+				B10000000000000000000209 /* ThemeSettingsView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		B10000000000000000000021 /* Debug */ = {
+			isa = PBXBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = watchos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+		B10000000000000000000022 /* Release */ = {
+			isa = PBXBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = watchos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
+		B10000000000000000000024 /* Debug */ = {
+			isa = PBXBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = GravityWatchFace3D/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.GravityWatchFace3D;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = NO;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+		B10000000000000000000025 /* Release */ = {
+			isa = PBXBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = GravityWatchFace3D/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.GravityWatchFace3D;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = NO;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		B10000000000000000000020 /* Build configuration list for PBXProject "GravityWatchFace3D" */ = {
+			isa = PBXConfigurationList;
+			buildConfigurations = (
+				B10000000000000000000021 /* Debug */,
+				B10000000000000000000022 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B10000000000000000000023 /* Build configuration list for PBXNativeTarget "GravityWatchFace3D" */ = {
+			isa = PBXConfigurationList;
+			buildConfigurations = (
+				B10000000000000000000024 /* Debug */,
+				B10000000000000000000025 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = B10000000000000000000001 /* Project object */;
+}

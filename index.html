@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>重力表盘 3D · watchOS True-3D Gravity Watch Face</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:wght@500;600;700&family=Caveat:wght@600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=20261121_studio_v4">
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "./vendor/three.module.js",
+      "three/addons/": "./vendor/jsm/"
+    }
+  }
+  </script>
+</head>
+<body data-case="series10">
+  <!-- SVG crinkled paper turbulence filter for organic desk & poster tactility -->
+  <svg class="svg-defs" aria-hidden="true" width="0" height="0">
+    <defs>
+      <filter id="paper-crinkle" x="0%" y="0%" width="100%" height="100%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.018" numOctaves="4" seed="7" result="noise" />
+        <feDiffuseLighting in="noise" lighting-color="#ffffff" surfaceScale="2.2" result="light">
+          <feDistantLight azimuth="48" elevation="58" />
+        </feDiffuseLighting>
+      </filter>
+    </defs>
+  </svg>
+
+  <main class="desk-stage" id="deskStage">
+    <div class="desk-paper-texture" aria-hidden="true"></div>
+
+    <!-- Top-right handwritten chartreuse margin note -->
+    <aside class="margin-note" aria-label="设计说明">
+      <span class="crosshair-v" aria-hidden="true"></span>
+      <span class="crosshair-h" aria-hidden="true"></span>
+      <p class="margin-note-text">
+        true 3D recessed cavity.<br>
+        5 courts &amp; vaults · real shadows.<br>
+        drag or pull tab to play.
+      </p>
+    </aside>
+
+    <!-- Central chartreuse poster board -->
+    <section class="poster-wrap" aria-label="watchOS 3D 重力表盘实验台">
+      <div class="kraft-tape kraft-tape--top" aria-hidden="true"></div>
+      <div class="kraft-tape kraft-tape--left" aria-hidden="true"></div>
+      <div class="kraft-tape kraft-tape--right" aria-hidden="true"></div>
+
+      <div class="poster-card" id="posterCard">
+        <div class="poster-paper-texture" aria-hidden="true"></div>
+        <div class="poster-corner-curl" aria-hidden="true"></div>
+
+        <!-- Top Poster Header Row -->
+        <header class="poster-header">
+          <div class="poster-meta">
+            <span class="meta-line">THREE.JS R187 · RAPIER WASM 3D</span>
+            <span class="meta-line">ANISOTROPIC PBR · HDR BLOOM</span>
+            <span class="meta-telemetry" id="gravityTelemetry">GX +0.00 · GY -0.73 · GZ -0.68</span>
+          </div>
+
+          <div class="poster-brand-lockup" aria-hidden="true">
+            <span class="brand-side">TRUE 3D</span>
+            <span class="brand-badge">GRAVITY<br>FACE</span>
+            <span class="brand-side">5 SCENES</span>
+          </div>
+
+          <button
+            type="button"
+            class="pull-tab"
+            id="pullMeBtn"
+            aria-label="拉动晃动表盘内所有 3D 物体"
+            title="点击甩飞 3D 物体 (Space)"
+          >
+            <span class="pull-perforation" aria-hidden="true"></span>
+            <span class="pull-label">PULL ME</span>
+          </button>
+        </header>
+
+        <!-- Center Stage: Flanking Kinetic Display Type + 3D Apple Watch -->
+        <div class="poster-centerpiece">
+          <div class="flank-word flank-word--left" aria-hidden="true">
+            <span class="hero-word">TILT</span>
+            <span class="flank-sub">3D CAVITY PARALLAX</span>
+          </div>
+
+          <div class="watch-stage" id="watchStage">
+            <div class="tilt-vector-indicator" id="tiltIndicator" aria-hidden="true">
+              <span class="tilt-dot" id="tiltDot"></span>
+            </div>
+
+            <div class="watch-canvas-wrap" id="watchCanvasWrap">
+              <canvas
+                id="webglCanvas"
+                class="watch-webgl-canvas"
+                aria-label="Three.js 全 3D 表壳与重力物理表盘画布"
+              ></canvas>
+
+              <!-- Accessible screen-reader clock mirror -->
+              <span class="sr-only" id="watchDate">FRI 20</span>
+              <span class="sr-only" id="watchTime">10:09</span>
+
+              <!-- Centered 1:1 OLED Overlay for In-Watch Settings Trigger & Sheet -->
+              <div class="watch-ui-overlay" id="watchUiOverlay">
+                <button
+                  type="button"
+                  class="watch-settings-btn"
+                  id="watchSettingsBtn"
+                  aria-label="打开表盘 3D 场景设置"
+                  title="切换表盘场景 (或长按表盘)"
+                >
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                    <line x1="4" y1="7" x2="20" y2="7" />
+                    <line x1="4" y1="12" x2="20" y2="12" />
+                    <line x1="4" y1="17" x2="20" y2="17" />
+                    <circle cx="9" cy="7" r="2" fill="currentColor" />
+                    <circle cx="15" cy="12" r="2" fill="currentColor" />
+                    <circle cx="10" cy="17" r="2" fill="currentColor" />
+                  </svg>
+                </button>
+
+                <div
+                  class="watch-settings-sheet"
+                  id="watchSettingsSheet"
+                  role="dialog"
+                  aria-modal="true"
+                  aria-label="切换 3D 表盘"
+                  aria-hidden="true"
+                >
+                  <div class="sheet-header">
+                    <button type="button" class="sheet-close" id="sheetCloseBtn" aria-label="关闭设置">
+                      <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round">
+                        <polyline points="15 18 9 12 15 6" />
+                      </svg>
+                    </button>
+                    <span class="sheet-title">切换 3D 场景</span>
+                  </div>
+                  <div class="sheet-list" id="sheetList"></div>
+                </div>
+              </div>
+            </div>
+
+            <p class="watch-drag-hint" id="watchDragHint">
+              拖拽旋转 3D 表体 · 点击/滚轮旋转数字表冠 · 双击回正
+            </p>
+          </div>
+
+          <div class="flank-word flank-word--right" aria-hidden="true">
+            <span class="hero-word">DROP</span>
+            <span class="flank-sub">PBR METALS &amp; COURTS</span>
+          </div>
+        </div>
+
+        <!-- Bottom Poster Controls (5 Scenes) -->
+        <footer class="poster-footer">
+          <nav class="stamp-switcher" id="stampSwitcher" aria-label="切换 5 款 3D 表盘">
+            <button type="button" class="stamp-btn is-active" data-theme="tennis">
+              <span class="stamp-idx">01</span>
+              <span class="stamp-name">网球</span>
+            </button>
+            <button type="button" class="stamp-btn" data-theme="diamond">
+              <span class="stamp-idx">02</span>
+              <span class="stamp-name">钻石</span>
+            </button>
+            <button type="button" class="stamp-btn" data-theme="basketball">
+              <span class="stamp-idx">03</span>
+              <span class="stamp-name">篮球</span>
+            </button>
+            <button type="button" class="stamp-btn" data-theme="goldBar">
+              <span class="stamp-idx">04</span>
+              <span class="stamp-name">金条</span>
+            </button>
+            <button type="button" class="stamp-btn" data-theme="soccer">
+              <span class="stamp-idx">05</span>
+              <span class="stamp-name">足球</span>
+            </button>
+          </nav>
+
+          <div class="poster-pills">
+            <button
+              type="button"
+              class="mode-pill"
+              id="quickTiltModeBtn"
+              title="在拖拽倾斜与自动 360° 摇摆录屏模式间切换"
+            >
+              <span class="mode-pill-dot" aria-hidden="true"></span>
+              <span id="quickTiltModeLabel">拖拽倾斜</span>
+            </button>
+
+            <button
+              type="button"
+              class="gyro-pill is-hidden"
+              id="gyroBtn"
+              title="启用移动设备真实陀螺仪"
+            >
+              陀螺仪
+            </button>
+
+            <button
+              type="button"
+              class="sound-pill"
+              id="soundToggleBtn"
+              role="switch"
+              aria-checked="false"
+              aria-label="开启或关闭 3D 物理音效"
+              title="物理碰撞音效开关"
+            >
+              <span class="sound-knob" aria-hidden="true"></span>
+              <span class="sound-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                  <path class="sound-wave" d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                  <path class="sound-mute-x" d="M22 9l-6 6M16 9l6 6" />
+                </svg>
+              </span>
+            </button>
+          </div>
+        </footer>
+      </div>
+    </section>
+
+    <div class="desk-bottom-bar">
+      <span class="desk-footnote">
+        WebGL 3D 物理级渲染 · Three.js r187 + Rapier WASM 3D · 快捷键 1-5 / Space / T
+      </span>
+      <button type="button" class="tweaks-launcher" id="tweaksToggleBtn" aria-expanded="false" aria-controls="tweaksPanel">
+        Tweaks
+      </button>
+    </div>
+
+    <!-- Floating Tweaks Panel (completely hidden when closed) -->
+    <aside class="tweaks-panel" id="tweaksPanel" aria-label="Tweaks" aria-hidden="true">
+      <div class="tweaks-header">
+        <span class="tweaks-title">Tweaks</span>
+        <button type="button" class="tweaks-close" id="tweaksCloseBtn" aria-label="关闭 Tweaks 面板">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="tweaks-body">
+        <div class="tweak-group">
+          <label class="tweak-label" for="densityPresetSelect">物体大小与数量预设 (Density)</label>
+          <select class="tweak-select" id="densityPresetSelect">
+            <option value="cinematic">原视频大尺寸比例 (~15–19 颗)</option>
+            <option value="dense40">Prompt 40 颗密集模式</option>
+          </select>
+        </div>
+
+        <div class="tweak-group">
+          <label class="tweak-label" for="clockModeSelect">时钟时间模式 (Clock)</label>
+          <select class="tweak-select" id="clockModeSelect">
+            <option value="live">实时系统时间 (Live Clock)</option>
+            <option value="appleDemo">Apple 宣传时间 (10:09 / 9:41)</option>
+          </select>
+        </div>
+
+        <div class="tweak-group">
+          <label class="tweak-label" for="caseSelect">3D 表壳工艺 (Watch Case)</label>
+          <select class="tweak-select" id="caseSelect">
+            <option value="series10">Series 10 · 亮黑铝金属</option>
+            <option value="ultra2">Ultra 2 · 原色钛金属</option>
+            <option value="titaniumGold">Series 10 · 抛光钛金</option>
+            <option value="frameless">极简无边框 · OLED 视窗</option>
+          </select>
+        </div>
+
+        <div class="tweak-group">
+          <label class="tweak-label" for="hdriSelect">影棚环境光 (Studio HDRI)</label>
+          <select class="tweak-select" id="hdriSelect">
+            <option value="studio09">柔光暗棚 · Poly Haven Studio 09</option>
+            <option value="studio08">明调影棚 · Poly Haven Studio 08</option>
+            <option value="procedural">高反差内置棚拍光</option>
+          </select>
+        </div>
+
+        <div class="tweak-group">
+          <label class="tweak-label" for="toneMappingSelect">色调映射 (Tone Mapping)</label>
+          <select class="tweak-select" id="toneMappingSelect">
+            <option value="neutral">Khronos Neutral (写实原色)</option>
+            <option value="agx">AgX Film (电影质感)</option>
+            <option value="aces">ACES Filmic (高对比)</option>
+          </select>
+        </div>
+
+        <div class="tweak-group">
+          <label class="tweak-label" for="physicsEngineSelect">物理求解器 (Physics Solver)</label>
+          <select class="tweak-select" id="physicsEngineSelect">
+            <option value="rapier">Rapier3D WASM (真实刚体凸包)</option>
+            <option value="analytic">Analytic 3D (经典快速求解)</option>
+          </select>
+        </div>
+
+        <div class="tweak-group">
+          <label class="tweak-label" for="velvetColorSelect">钻石丝绒底衬 (Velvet Cushion)</label>
+          <select class="tweak-select" id="velvetColorSelect">
+            <option value="obsidian">玄黑天鹅绒 (Obsidian Black)</option>
+            <option value="burgundy">高定酒红丝绒 (Velour Burgundy)</option>
+            <option value="sapphire">皇家午夜蓝丝绒 (Royal Sapphire)</option>
+            <option value="emerald">帝王祖母绿丝绒 (Emerald Velvet)</option>
+          </select>
+        </div>
+
+        <div class="tweak-group">
+          <label class="tweak-label" for="tiltModeSelect">重力驱动模式 (Gravity Input)</label>
+          <select class="tweak-select" id="tiltModeSelect">
+            <option value="drag">拖拽倾斜 (Drag to Tilt)</option>
+            <option value="hover">鼠标悬停倾斜 (Mouse Follow)</option>
+            <option value="orbit">自动 360° 摇摆演示 (Auto Orbit)</option>
+          </select>
+        </div>
+
+        <div class="tweak-group">
+          <label class="tweak-label" for="complicationsSelect">圆形复杂功能 (Complications)</label>
+          <select class="tweak-select" id="complicationsSelect">
+            <option value="auto">自动 (钻石/金条表盘显示)</option>
+            <option value="show">全部显示</option>
+            <option value="hide">全部隐藏</option>
+          </select>
+        </div>
+
+        <div class="tweak-group">
+          <div class="tweak-row">
+            <label class="tweak-label" for="parallaxRange">3D 腔体视差 Parallax</label>
+            <span class="tweak-val" id="parallaxVal">1.0×</span>
+          </div>
+          <input class="tweak-range" id="parallaxRange" type="range" min="0" max="1.6" step="0.1" value="1.0">
+        </div>
+
+        <div class="tweak-group">
+          <div class="tweak-row">
+            <label class="tweak-label" for="bloomRange">光学泛光 (HDR Bloom)</label>
+            <span class="tweak-val" id="bloomVal">0.32</span>
+          </div>
+          <input class="tweak-range" id="bloomRange" type="range" min="0" max="1.0" step="0.02" value="0.32">
+        </div>
+
+        <div class="tweak-group">
+          <div class="tweak-row">
+            <label class="tweak-label" for="trailRange">物理互映与压痕 (Surface FX)</label>
+            <span class="tweak-val" id="trailVal">1.0×</span>
+          </div>
+          <input class="tweak-range" id="trailRange" type="range" min="0" max="1.6" step="0.1" value="1.0">
+        </div>
+
+        <div class="tweak-group">
+          <div class="tweak-row">
+            <label class="tweak-label" for="restitutionRange">材质弹性 Restitution</label>
+            <span class="tweak-val" id="restitutionVal">0.50</span>
+          </div>
+          <input class="tweak-range" id="restitutionRange" type="range" min="0" max="0.95" step="0.05" value="0.50">
+        </div>
+
+        <div class="tweak-group">
+          <div class="tweak-row">
+            <label class="tweak-label" for="frictionRange">摩擦倍率 Friction</label>
+            <span class="tweak-val" id="frictionVal">1.0×</span>
+          </div>
+          <input class="tweak-range" id="frictionRange" type="range" min="0" max="2.0" step="0.1" value="1.0">
+        </div>
+
+        <div class="tweak-group">
+          <div class="tweak-row">
+            <label class="tweak-label" for="airDragRange">空气阻力 Air Drag</label>
+            <span class="tweak-val" id="airDragVal">1.0×</span>
+          </div>
+          <input class="tweak-range" id="airDragRange" type="range" min="0" max="3.0" step="0.1" value="1.0">
+        </div>
+
+        <div class="tweak-group">
+          <div class="tweak-row">
+            <label class="tweak-label" for="gravityRange">重力强度 Gravity</label>
+            <span class="tweak-val" id="gravityVal">1.0×</span>
+          </div>
+          <input class="tweak-range" id="gravityRange" type="range" min="0.4" max="2.0" step="0.1" value="1.0">
+        </div>
+
+        <label class="tweak-check">
+          <input type="checkbox" id="autoLevelCheck">
+          <span>松手自动回正 (Auto-Level)</span>
+        </label>
+
+        <label class="tweak-check">
+          <input type="checkbox" id="aodCheck">
+          <span>AOD 常亮降亮度模式 (Always-On)</span>
+        </label>
+
+        <label class="tweak-check">
+          <input type="checkbox" id="cleanRecordCheck">
+          <span>纯享录屏模式 (隐藏外围按钮)</span>
+        </label>
+
+        <button type="button" class="tweak-reset-btn" id="resetDefaultsBtn">
+          恢复原视频 3D 默认参数
+        </button>
+      </div>
+    </aside>
+  </main>
+
+  <script type="module" src="boot.js?v=20261121_studio_v5"></script>
+</body>
+</html>

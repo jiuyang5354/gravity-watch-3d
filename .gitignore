@@ -1,0 +1,19 @@
+# macOS / Windows OS metadata
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs & local tooling
+*.log
+.vscode/
+.idea/
+node_modules/
+
+# Xcode user state & build artifacts
+*.xcuserstate
+xcuserdata/
+DerivedData/
+.build/
+*.ipa
+*.dSYM.zip
+*.dSYM

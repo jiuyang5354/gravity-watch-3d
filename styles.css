@@ -1,0 +1,1201 @@
+:root {
+  /* Sweet Tape Palette + Pure Watch OLED */
+  --desk-green: #053b06;
+  --desk-green-light: #0a520c;
+  --desk-green-deep: #022403;
+  --poster-lime: #b2ff00;
+  --poster-lime-bright: #c5ff3c;
+  --poster-lime-shadow: #9de600;
+  --ink-green: #053b06;
+  --kraft-light: #e2d1a7;
+  --kraft-mid: #d3bd8b;
+  --kraft-dark: #bca26b;
+  --paper-white: #ffffff;
+  --oled-black: #000000;
+  --accent-color: #ccf538;
+
+  /* Typography */
+  --font-display: 'Anton', Impact, sans-serif;
+  --font-meta: 'Barlow Condensed', sans-serif;
+  --font-hand: 'Caveat', cursive;
+  --font-watch: 'SF Pro Rounded', ui-rounded, 'Nunito', sans-serif;
+
+  /* Radii & Motion */
+  --radius-poster: 6px;
+  --radius-pill: 999px;
+  --spring-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  width: 100%;
+  min-height: 100%;
+  overflow-x: hidden;
+  background-color: var(--desk-green);
+  color: var(--ink-green);
+  font-family: var(--font-meta);
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+
+.svg-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+/* =========================================================
+   Desk Backdrop (Crumpled Deep Forest Green)
+   ========================================================= */
+.desk-stage {
+  position: relative;
+  width: 100%;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 74px 24px 56px;
+  background:
+    radial-gradient(circle at 22% 24%, rgba(20, 114, 22, 0.42), transparent 52%),
+    radial-gradient(circle at 84% 78%, rgba(2, 30, 3, 0.72), transparent 58%),
+    linear-gradient(155deg, var(--desk-green-light) 0%, var(--desk-green) 48%, var(--desk-green-deep) 100%);
+  overflow: hidden;
+}
+
+.desk-paper-texture {
+  position: absolute;
+  inset: -40px;
+  background:
+    linear-gradient(128deg, transparent 34%, rgba(255, 255, 255, 0.03) 34.5%, transparent 35.5%),
+    linear-gradient(42deg, transparent 58%, rgba(0, 0, 0, 0.16) 58.6%, transparent 60%),
+    linear-gradient(164deg, transparent 71%, rgba(255, 255, 255, 0.025) 71.5%, transparent 72.5%);
+  filter: url(#paper-crinkle);
+  opacity: 0.24;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+/* Top-Right Handwritten Chartreuse Margin Note */
+.margin-note {
+  position: absolute;
+  top: 22px;
+  right: max(28px, calc(50% - 490px));
+  padding: 10px 16px 10px 14px;
+  z-index: 6;
+  pointer-events: none;
+}
+
+.margin-note .crosshair-v {
+  position: absolute;
+  top: -10px;
+  left: 0;
+  width: 1px;
+  height: calc(100% + 16px);
+  background: rgba(178, 255, 0, 0.68);
+}
+
+.margin-note .crosshair-h {
+  position: absolute;
+  top: 4px;
+  left: -14px;
+  width: calc(100% + 26px);
+  height: 1px;
+  background: rgba(178, 255, 0, 0.68);
+  transform: rotate(-1.6deg);
+}
+
+.margin-note-text {
+  font-family: var(--font-hand);
+  font-size: 18px;
+  line-height: 1.08;
+  color: var(--poster-lime);
+  letter-spacing: 0.01em;
+  text-wrap: pretty;
+}
+
+/* =========================================================
+   Central Chartreuse Poster Card + Kraft Masking Tape
+   ========================================================= */
+.poster-wrap {
+  position: relative;
+  width: min(94vw, 1080px);
+  z-index: 4;
+}
+
+.poster-card {
+  position: relative;
+  width: 100%;
+  min-height: clamp(500px, 73vh, 650px);
+  background:
+    radial-gradient(circle at 26% 18%, var(--poster-lime-bright) 0%, transparent 48%),
+    linear-gradient(145deg, #b8ff1a 0%, var(--poster-lime) 54%, var(--poster-lime-shadow) 100%);
+  border-radius: var(--radius-poster);
+  padding: 18px 26px 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow:
+    0 34px 70px rgba(0, 0, 0, 0.56),
+    0 10px 24px rgba(0, 0, 0, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  overflow: hidden;
+  cursor: grab;
+}
+
+.poster-card:active {
+  cursor: grabbing;
+}
+
+.poster-paper-texture {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(115deg, transparent 22%, rgba(255, 255, 255, 0.14) 22.4%, transparent 23.4%),
+    linear-gradient(28deg, transparent 48%, rgba(5, 59, 6, 0.06) 48.5%, transparent 49.5%),
+    linear-gradient(156deg, transparent 74%, rgba(255, 255, 255, 0.12) 74.4%, transparent 75.5%);
+  filter: url(#paper-crinkle);
+  opacity: 0.22;
+  mix-blend-mode: soft-light;
+  pointer-events: none;
+}
+
+/* Subtle dark curled corner shadow matching Sweet Tape poster card */
+.poster-corner-curl {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 180px;
+  height: 76px;
+  background: radial-gradient(ellipse at 100% 100%, var(--desk-green-deep) 0%, rgba(5, 59, 6, 0.88) 44%, transparent 74%);
+  opacity: 0.72;
+  pointer-events: none;
+}
+
+/* Realistic Torn Kraft Masking Tape Strips */
+.kraft-tape {
+  position: absolute;
+  z-index: 12;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.12) 0%, transparent 18%, rgba(92, 65, 24, 0.08) 56%, rgba(255, 255, 255, 0.08) 100%),
+    linear-gradient(180deg, var(--kraft-light) 0%, var(--kraft-mid) 52%, var(--kraft-dark) 100%);
+  box-shadow:
+    0 5px 12px rgba(0, 0, 0, 0.36),
+    inset 0 1px 0 rgba(255, 255, 255, 0.34);
+  opacity: 0.94;
+  pointer-events: none;
+  clip-path: polygon(
+    2% 4%, 9% 0%, 18% 5%, 31% 1%, 48% 4%, 64% 0%, 82% 4%, 97% 1%,
+    100% 18%, 97% 36%, 100% 54%, 96% 74%, 99% 93%,
+    91% 99%, 75% 96%, 58% 100%, 40% 96%, 22% 99%, 6% 96%,
+    0% 82%, 3% 62%, 0% 42%, 3% 22%
+  );
+}
+
+.kraft-tape--top {
+  width: 174px;
+  height: 50px;
+  top: -21px;
+  left: 24%;
+  transform: rotate(3.4deg);
+}
+
+.kraft-tape--left {
+  width: 152px;
+  height: 46px;
+  top: 44%;
+  left: -76px;
+  transform: rotate(-84deg);
+}
+
+.kraft-tape--right {
+  width: 170px;
+  height: 46px;
+  bottom: -21px;
+  right: 26%;
+  transform: rotate(-3.2deg);
+}
+
+/* =========================================================
+   Poster Header, Brand Lockup, PULL ME Tab
+   ========================================================= */
+.poster-header {
+  position: relative;
+  z-index: 5;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: start;
+  gap: 12px;
+}
+
+.poster-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.1;
+  color: var(--ink-green);
+}
+
+.meta-telemetry {
+  margin-top: 4px;
+  display: inline-block;
+  width: fit-content;
+  padding: 2px 6px;
+  border: 1px solid rgba(5, 59, 6, 0.35);
+  border-radius: 3px;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  background: rgba(5, 59, 6, 0.06);
+}
+
+.poster-brand-lockup {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding-top: 2px;
+}
+
+.brand-side {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--ink-green);
+}
+
+.brand-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 5px 14px;
+  background: var(--ink-green);
+  color: var(--poster-lime);
+  font-family: var(--font-display);
+  font-size: 14px;
+  line-height: 0.92;
+  letter-spacing: 0.04em;
+  border-radius: 44% 56% 48% 52% / 62% 38% 60% 40%;
+  transform: rotate(-4deg);
+}
+
+/* Top-right perforated PULL ME white ribbon */
+.pull-tab {
+  justify-self: end;
+  position: relative;
+  margin-top: -18px;
+  width: 82px;
+  height: 76px;
+  border: none;
+  background: var(--paper-white);
+  color: var(--ink-green);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 10px;
+  cursor: pointer;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 74% 87%, 50% 100%, 26% 87%, 0 100%);
+  filter: drop-shadow(0 6px 10px rgba(5, 59, 6, 0.22));
+  transition: transform 0.32s var(--spring-ease), filter 0.25s ease;
+  transform-origin: top center;
+}
+
+.pull-tab:hover {
+  transform: translateY(4px) scaleY(1.04);
+}
+
+.pull-tab:active,
+.pull-tab.is-pulled {
+  transform: translateY(14px) scaleY(1.16);
+}
+
+.pull-perforation {
+  position: absolute;
+  top: 13px;
+  left: 8px;
+  right: 8px;
+  border-top: 2px dashed rgba(5, 59, 6, 0.55);
+}
+
+.pull-label {
+  margin-top: 12px;
+  font-family: var(--font-meta);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+/* =========================================================
+   Centerpiece: Flanking Display Type + Centered Watch
+   ========================================================= */
+.poster-centerpiece {
+  position: relative;
+  z-index: 6;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 24px;
+  margin: 6px 0 4px;
+}
+
+.flank-word {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.flank-word--left {
+  align-items: flex-end;
+  text-align: right;
+  transform: rotate(-2deg);
+}
+
+.flank-word--right {
+  align-items: flex-start;
+  text-align: left;
+  transform: rotate(1.6deg);
+}
+
+.hero-word {
+  font-family: var(--font-display);
+  font-size: clamp(78px, 9.6vw, 136px);
+  line-height: 0.84;
+  letter-spacing: 0.01em;
+  color: var(--ink-green);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.flank-sub {
+  margin-top: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: rgba(5, 59, 6, 0.72);
+}
+
+/* =========================================================
+   Centered 3D Apple Watch Hardware Stage
+   ========================================================= */
+.watch-stage {
+  position: relative;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  perspective: 1100px;
+}
+
+.tilt-vector-indicator {
+  position: absolute;
+  width: 344px;
+  height: 344px;
+  border-radius: 50%;
+  border: 1px dashed rgba(5, 59, 6, 0.24);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.22s ease;
+}
+
+.tilt-vector-indicator.is-active {
+  opacity: 1;
+}
+
+.tilt-dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 11px;
+  height: 11px;
+  margin: -5.5px 0 0 -5.5px;
+  border-radius: 50%;
+  background: var(--ink-green);
+  box-shadow: 0 0 0 4px rgba(178, 255, 0, 0.8);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.watch-canvas-wrap {
+  position: relative;
+  width: 396px;
+  height: 456px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: none;
+}
+
+.watch-webgl-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.watch-ui-overlay {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 244px;
+  height: 298px;
+  transform: translate(-50%, -50%);
+  border-radius: 44px;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 8;
+}
+
+.watch-ui-overlay.is-aod .watch-settings-btn {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Bottom-center In-Watch Settings Trigger */
+.watch-settings-btn {
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
+  transform: translateX(-50%);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  background: rgba(20, 22, 28, 0.76);
+  color: rgba(255, 255, 255, 0.92);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  pointer-events: auto;
+  z-index: 9;
+  transition: transform 0.2s var(--spring-ease), background 0.2s ease, opacity 0.25s ease;
+}
+
+.watch-settings-btn:hover {
+  transform: translateX(-50%) scale(1.1);
+  background: rgba(58, 60, 68, 0.9);
+}
+
+.watch-settings-btn:active {
+  transform: translateX(-50%) scale(0.94);
+}
+
+/* In-Watch SettingsView Sheet */
+.watch-settings-sheet {
+  position: absolute;
+  inset: 0;
+  background: #0b0c0f;
+  border-radius: 44px;
+  padding: 12px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  z-index: 15;
+  transform: translateY(104%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.34s var(--spring-ease), opacity 0.24s ease;
+}
+
+.watch-settings-sheet.is-open {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.sheet-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px 7px;
+  flex-shrink: 0;
+}
+
+.sheet-close {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.sheet-close:hover {
+  background: rgba(255, 255, 255, 0.32);
+}
+
+.sheet-title {
+  font-family: var(--font-watch);
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.sheet-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow: hidden;
+  scrollbar-width: none;
+}
+
+.sheet-list::-webkit-scrollbar {
+  display: none;
+}
+
+.sheet-item {
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 13px;
+  padding: 5px 9px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  color: #ffffff;
+  text-align: left;
+  transition: background 0.18s ease, transform 0.16s ease, border-color 0.18s ease;
+}
+
+.sheet-item:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.sheet-item:active {
+  transform: scale(0.97);
+}
+
+.sheet-item.is-selected {
+  border-color: var(--accent-color);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.sheet-item-icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.sheet-item-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.sheet-item-name {
+  display: block;
+  font-family: var(--font-watch);
+  font-size: 13.5px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.sheet-item-sub {
+  display: block;
+  font-family: var(--font-watch);
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.56);
+}
+
+.sheet-check {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #000000;
+  background: var(--accent-color);
+  opacity: 0;
+  transform: scale(0.6);
+  transition: opacity 0.2s ease, transform 0.25s var(--spring-ease);
+}
+
+.sheet-item.is-selected .sheet-check {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.watch-drag-hint {
+  margin-top: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: rgba(5, 59, 6, 0.8);
+  text-align: center;
+}
+
+/* =========================================================
+   Poster Footer (Ink-Stamp Switcher + White Pills)
+   ========================================================= */
+.poster-footer {
+  position: relative;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.stamp-switcher {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.stamp-btn {
+  border: 1.5px solid rgba(5, 59, 6, 0.45);
+  background: transparent;
+  color: var(--ink-green);
+  border-radius: 4px;
+  padding: 5px 10px;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  cursor: pointer;
+  font-family: var(--font-meta);
+  transition: background 0.18s ease, color 0.18s ease, transform 0.18s var(--spring-ease), border-color 0.18s ease;
+}
+
+.stamp-btn:hover {
+  background: rgba(5, 59, 6, 0.1);
+  transform: translateY(-1px);
+}
+
+.stamp-btn.is-active {
+  background: var(--ink-green);
+  border-color: var(--ink-green);
+  color: var(--poster-lime);
+}
+
+.stamp-idx {
+  font-size: 11px;
+  font-weight: 700;
+  opacity: 0.72;
+}
+
+.stamp-name {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+/* Bottom-right Crisp White Pills */
+.poster-pills {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mode-pill,
+.gyro-pill {
+  border: none;
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--ink-green);
+  height: 32px;
+  padding: 0 12px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-meta);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(5, 59, 6, 0.25);
+  transition: transform 0.2s var(--spring-ease), background 0.2s ease;
+}
+
+.mode-pill:hover,
+.gyro-pill:hover {
+  transform: translateY(-1px);
+  background: #ffffff;
+}
+
+.mode-pill-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ink-green);
+}
+
+.mode-pill.is-orbit .mode-pill-dot {
+  background: #ff4800;
+  animation: pulseDot 1.2s ease-in-out infinite;
+}
+
+.gyro-pill.is-hidden {
+  display: none;
+}
+
+.gyro-pill.is-active {
+  background: var(--ink-green);
+  color: var(--poster-lime);
+}
+
+/* Sweet Tape White Sound Pill */
+.sound-pill {
+  position: relative;
+  width: 62px;
+  height: 32px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: #ffffff;
+  color: var(--ink-green);
+  padding: 3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(5, 59, 6, 0.28);
+}
+
+.sound-knob {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #d6bf86, #9d824b);
+  transition: transform 0.28s var(--spring-ease);
+}
+
+.sound-pill[aria-checked="true"] .sound-knob {
+  transform: translateX(30px);
+}
+
+.sound-icon {
+  position: absolute;
+  right: 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.28s var(--spring-ease);
+}
+
+.sound-pill[aria-checked="true"] .sound-icon {
+  transform: translateX(-30px);
+}
+
+.sound-pill[aria-checked="false"] .sound-wave {
+  display: none;
+}
+
+.sound-pill[aria-checked="true"] .sound-mute-x {
+  display: none;
+}
+
+@keyframes pulseDot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.45); opacity: 0.6; }
+}
+
+/* =========================================================
+   Desk Bottom Bar & Floating Tweaks Panel
+   ========================================================= */
+.desk-bottom-bar {
+  position: relative;
+  z-index: 6;
+  width: min(94vw, 1080px);
+  margin-top: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.desk-footnote {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: rgba(178, 255, 0, 0.72);
+}
+
+.tweaks-launcher {
+  border: 1px solid rgba(178, 255, 0, 0.38);
+  background: rgba(2, 36, 3, 0.85);
+  color: var(--poster-lime);
+  border-radius: var(--radius-pill);
+  padding: 6px 14px;
+  font-family: var(--font-meta);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s var(--spring-ease);
+}
+
+.tweaks-launcher:hover {
+  background: var(--poster-lime);
+  color: var(--ink-green);
+  transform: translateY(-1px);
+}
+
+/* Clean Recording Mode hides peripheral controls */
+body.is-clean-record .stamp-switcher,
+body.is-clean-record .poster-pills,
+body.is-clean-record .watch-drag-hint,
+body.is-clean-record .desk-footnote {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.tweaks-panel {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  width: 286px;
+  max-height: calc(100dvh - 40px);
+  overflow-y: auto;
+  background: rgba(12, 22, 13, 0.94);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(178, 255, 0, 0.28);
+  border-radius: 14px;
+  padding: 16px;
+  color: #f4fae8;
+  z-index: 60;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+  display: none;
+}
+
+.tweaks-panel.is-open {
+  display: block;
+}
+
+.tweaks-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tweaks-title {
+  font-family: var(--font-meta);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--poster-lime);
+}
+
+.tweaks-close {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  border: none;
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.tweaks-close:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.tweaks-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tweak-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.tweak-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tweak-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.tweak-val {
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--poster-lime);
+}
+
+.tweak-select {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.09);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 7px;
+  padding: 6px 8px;
+  color: #ffffff;
+  font-family: var(--font-meta);
+  font-size: 13px;
+}
+
+.tweak-select option {
+  background: #121c13;
+  color: #ffffff;
+}
+
+.tweak-range {
+  width: 100%;
+  accent-color: var(--poster-lime);
+  cursor: pointer;
+}
+
+.tweak-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.86);
+  cursor: pointer;
+}
+
+.tweak-check input {
+  accent-color: var(--poster-lime);
+}
+
+.tweak-reset-btn {
+  margin-top: 4px;
+  border: 1px solid rgba(178, 255, 0, 0.4);
+  background: rgba(178, 255, 0, 0.12);
+  color: var(--poster-lime);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-family: var(--font-meta);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background 0.18s ease;
+}
+
+.tweak-reset-btn:hover {
+  background: rgba(178, 255, 0, 0.22);
+}
+
+/* =========================================================
+   Responsive Breakpoints (Mobile <= 768px)
+   ========================================================= */
+@media (max-width: 768px) {
+  .desk-stage {
+    padding: 14px 12px 28px;
+    justify-content: flex-start;
+  }
+
+  .margin-note {
+    position: relative;
+    top: auto;
+    right: auto;
+    align-self: flex-end;
+    margin-bottom: 16px;
+    padding: 4px 10px;
+  }
+
+  .margin-note-text {
+    font-size: 14px;
+  }
+
+  .poster-card {
+    min-height: auto;
+    padding: 14px 14px 16px;
+  }
+
+  .kraft-tape--top {
+    width: 112px;
+    height: 32px;
+    top: -15px;
+    left: 44%;
+    transform: rotate(2.5deg);
+  }
+
+  .kraft-tape--left {
+    width: 92px;
+    height: 30px;
+    top: 44%;
+    left: -46px;
+    transform: rotate(-86deg);
+  }
+
+  .kraft-tape--right {
+    width: 118px;
+    height: 32px;
+    right: -36px;
+    bottom: 42%;
+    transform: rotate(84deg);
+  }
+
+  .poster-header {
+    grid-template-columns: 1fr auto;
+  }
+
+  .poster-brand-lockup {
+    display: none;
+  }
+
+  .pull-tab {
+    margin-top: -14px;
+    width: 68px;
+    height: 62px;
+  }
+
+  .poster-centerpiece {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 12px;
+    margin: 12px 0 6px;
+  }
+
+  .flank-word--left {
+    grid-column: 1;
+    grid-row: 1;
+    align-items: flex-end;
+    text-align: right;
+  }
+
+  .flank-word--right {
+    grid-column: 2;
+    grid-row: 1;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .flank-sub {
+    display: none;
+  }
+
+  .hero-word {
+    font-size: clamp(46px, 14vw, 62px);
+  }
+
+  .watch-stage {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    margin: 2px auto 0;
+  }
+
+  .watch-canvas-wrap {
+    width: 326px;
+    height: 376px;
+  }
+
+  .watch-ui-overlay {
+    width: 201px;
+    height: 246px;
+    border-radius: 36px;
+  }
+
+  .watch-settings-sheet {
+    border-radius: 36px;
+    padding: 9px 9px 10px;
+  }
+
+  .sheet-header {
+    padding: 2px 6px 5px;
+    gap: 6px;
+  }
+
+  .sheet-close {
+    width: 24px;
+    height: 24px;
+  }
+
+  .sheet-title {
+    font-size: 12px;
+  }
+
+  .sheet-list {
+    gap: 3px;
+  }
+
+  .sheet-item {
+    padding: 4px 7px;
+    border-radius: 10px;
+    gap: 7px;
+  }
+
+  .sheet-item-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .sheet-item-name {
+    font-size: 12px;
+  }
+
+  .sheet-item-sub {
+    font-size: 9px;
+  }
+
+  .poster-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .stamp-switcher {
+    justify-content: center;
+  }
+
+  .poster-pills {
+    justify-content: center;
+  }
+
+  .desk-bottom-bar {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .tweaks-panel {
+    right: 12px;
+    left: 12px;
+    width: auto;
+    bottom: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pull-tab,
+  .sound-knob,
+  .sound-icon,
+  .watch-settings-sheet {
+    transition: none;
+  }
+}
