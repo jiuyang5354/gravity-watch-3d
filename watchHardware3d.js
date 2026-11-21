@@ -446,8 +446,10 @@
      3D Glass-Plane Clock & Complications HUD Renderer
      ========================================================= */
   function createHUDCanvasRenderer() {
-    const W = 768;
-    const H = 936;
+    const W = 600;
+    const H = 732;
+    const LOGICAL_W = 768;
+    const LOGICAL_H = 936;
     const c = document.createElement('canvas');
     c.width = W;
     c.height = H;
@@ -458,7 +460,7 @@
     } else {
       tex.encoding = THREE.sRGBEncoding;
     }
-    tex.anisotropy = 8;
+    tex.anisotropy = 4;
 
     let lastKey = '';
 
@@ -483,15 +485,17 @@
       if (key === lastKey) return;
       lastKey = key;
 
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.clearRect(0, 0, W, H);
+      ctx.setTransform(W / LOGICAL_W, 0, 0, H / LOGICAL_H, 0, 0);
 
       // Subtle diagonal glass screen reflection & crisp micro pixel perimeter on OLED glass
-      const screenGrad = ctx.createLinearGradient(0, 0, W * 0.72, H * 0.65);
+      const screenGrad = ctx.createLinearGradient(0, 0, LOGICAL_W * 0.72, LOGICAL_H * 0.65);
       screenGrad.addColorStop(0, state.aodMode ? 'rgba(255, 255, 255, 0.035)' : 'rgba(255, 255, 255, 0.075)');
       screenGrad.addColorStop(0.28, state.aodMode ? 'rgba(255, 255, 255, 0.015)' : 'rgba(255, 255, 255, 0.026)');
       screenGrad.addColorStop(0.55, 'rgba(255, 255, 255, 0.0)');
       ctx.fillStyle = screenGrad;
-      ctx.fillRect(0, 0, W, H);
+      ctx.fillRect(0, 0, LOGICAL_W, LOGICAL_H);
 
       // Hairline active OLED edge definition
       ctx.save();
@@ -499,12 +503,12 @@
       const rr = 136;
       ctx.beginPath();
       ctx.moveTo(pad + rr, pad);
-      ctx.lineTo(W - pad - rr, pad);
-      ctx.quadraticCurveTo(W - pad, pad, W - pad, pad + rr);
-      ctx.lineTo(W - pad, H - pad - rr);
-      ctx.quadraticCurveTo(W - pad, H - pad, W - pad - rr, H - pad);
-      ctx.lineTo(pad + rr, H - pad);
-      ctx.quadraticCurveTo(pad, H - pad, pad, H - pad - rr);
+      ctx.lineTo(LOGICAL_W - pad - rr, pad);
+      ctx.quadraticCurveTo(LOGICAL_W - pad, pad, LOGICAL_W - pad, pad + rr);
+      ctx.lineTo(LOGICAL_W - pad, LOGICAL_H - pad - rr);
+      ctx.quadraticCurveTo(LOGICAL_W - pad, LOGICAL_H - pad, LOGICAL_W - pad - rr, LOGICAL_H - pad);
+      ctx.lineTo(pad + rr, LOGICAL_H - pad);
+      ctx.quadraticCurveTo(pad, LOGICAL_H - pad, pad, LOGICAL_H - pad - rr);
       ctx.lineTo(pad, pad + rr);
       ctx.quadraticCurveTo(pad, pad, pad + rr, pad);
       ctx.closePath();
@@ -527,12 +531,12 @@
 
       ctx.fillStyle = 'rgba(255, 255, 255, ' + alphaDate + ')';
       ctx.font = '700 37px "Nunito", "SF Pro Rounded", sans-serif';
-      ctx.fillText(state.dateText || 'FRI 20', W - 52, 52);
+      ctx.fillText(state.dateText || 'FRI 20', LOGICAL_W - 52, 52);
 
       ctx.shadowBlur = 24;
       ctx.fillStyle = 'rgba(255, 255, 255, ' + alphaClock + ')';
       ctx.font = '800 142px "Nunito", "SF Pro Rounded", sans-serif';
-      ctx.fillText(state.timeText || '10:09', W - 46, 94);
+      ctx.fillText(state.timeText || '10:09', LOGICAL_W - 46, 94);
       ctx.restore();
 
       if (state.showComplications) {
@@ -570,7 +574,7 @@
 
         // Bottom-left Arc Gauge + Spark Line Complication
         const blX = 96;
-        const blY = H - 104;
+        const blY = LOGICAL_H - 104;
         drawComplicationCircle(blX, blY, cr);
         ctx.lineWidth = 6.5;
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.22)';
@@ -591,8 +595,8 @@
         ctx.stroke();
 
         // Bottom-right 3 Concentric Activity Rings Complication
-        const brX = W - 96;
-        const brY = H - 104;
+        const brX = LOGICAL_W - 96;
+        const brY = LOGICAL_H - 104;
         drawComplicationCircle(brX, brY, cr);
         const rings = [
           { rad: 40, end: 0.74, col: 'rgba(255, 255, 255, 0.96)' },
@@ -708,25 +712,22 @@
       normalScale: new THREE.Vector2(0.55, 0.55)
     });
 
+    // Single-pass physical sapphire AR coating (eliminates Three.js hidden full-scene transmission pre-pass & mipmap chain)
     this.sapphireMat = new THREE.MeshPhysicalMaterial({
-      color: 0xffffff,
+      color: 0xf4f8ff,
       transparent: true,
-      opacity: 1.0,
-      transmission: 0.98,
+      opacity: 0.14,
+      transmission: 0.0,
       ior: 1.77,
-      thickness: 0.085,
-      dispersion: 0.055,
-      attenuationColor: new THREE.Color(0xf6f9ff),
-      attenuationDistance: 4.5,
-      roughness: 0.008,
+      roughness: 0.012,
       metalness: 0.0,
       reflectivity: 1.0,
       clearcoat: 1.0,
       clearcoatRoughness: 0.012,
-      iridescence: 0.24,
+      iridescence: 0.28,
       iridescenceIOR: 1.38,
       iridescenceThicknessRange: [120, 320],
-      envMapIntensity: 0.52,
+      envMapIntensity: 1.12,
       depthWrite: false
     });
 
@@ -746,7 +747,7 @@
   };
 
   WatchHardware3D.prototype.buildGeometry = function () {
-    const segs = 14;
+    const segs = 10;
 
     // 1. Solid Flush Edge-to-Edge LTPO3 OLED Display Screen Panel (tucked beneath curved black bezel & crystal)
     const oledGeo = buildRoundedRectCapGeometry(
@@ -1061,9 +1062,7 @@
       this.crownBodyMat.anisotropy = 0.92;
       this.crownBodyMat.envMapIntensity = 2.4;
 
-      this.sapphireMat.thickness = 0.028;
-      this.sapphireMat.dispersion = 0.025;
-      this.sapphireMat.iridescence = 0.18;
+      this.sapphireMat.iridescence = 0.20;
 
       this.bandMat.color.setHex(0x161b22);
       this.bandMat.roughness = 0.88;
@@ -1088,9 +1087,7 @@
       this.crownBodyMat.anisotropy = 0.88;
       this.crownBodyMat.envMapIntensity = 2.6;
 
-      this.sapphireMat.thickness = 0.085;
-      this.sapphireMat.dispersion = 0.055;
-      this.sapphireMat.iridescence = 0.24;
+      this.sapphireMat.iridescence = 0.28;
 
       this.bandMat.color.setHex(0x12100e);
       this.bandMat.roughness = 0.9;
@@ -1116,9 +1113,7 @@
       this.crownBodyMat.anisotropy = 0.88;
       this.crownBodyMat.envMapIntensity = 2.35;
 
-      this.sapphireMat.thickness = 0.085;
-      this.sapphireMat.dispersion = 0.055;
-      this.sapphireMat.iridescence = 0.24;
+      this.sapphireMat.iridescence = 0.28;
 
       this.bandMat.color.setHex(0x0b0c10);
       this.bandMat.roughness = 0.92;

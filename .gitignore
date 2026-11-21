@@ -9,6 +9,10 @@ desktop.ini
 .idea/
 node_modules/
 
+# Python cache
+__pycache__/
+*.pyc
+
 # Xcode user state & build artifacts
 *.xcuserstate
 xcuserdata/
@@ -17,3 +21,6 @@ DerivedData/
 *.ipa
 *.dSYM.zip
 *.dSYM
+
+# XcodeGen generated project (reproducible via `xcodegen generate`)
+apple/GravityWatchStudio.xcodeproj/

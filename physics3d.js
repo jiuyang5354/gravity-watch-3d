@@ -115,12 +115,26 @@
     this._lastAppliedRest = -1;
     this._lastAppliedMu = -1;
     this._lastSoundMs = 0;
+    this._restFrames = 0;
+    this.isResting = false;
+    this._lastGravX = this.gravity.x;
+    this._lastGravY = this.gravity.y;
+    this._lastGravZ = this.gravity.z;
 
     this._qDelta = new THREE.Quaternion();
     this._axis = new THREE.Vector3();
     this._axAxis = new THREE.Vector3();
     this._bxAxis = new THREE.Vector3();
     this._vLocal = new THREE.Vector3();
+
+    // Reusable zero-GC scratch buffers for Rapier3D per-frame stepping
+    this._prevVx = new Float32Array(64);
+    this._prevVy = new Float32Array(64);
+    this._prevVz = new Float32Array(64);
+    this._tmpGrav = { x: 0, y: 0, z: 0 };
+    this._tmpVec3 = { x: 0, y: 0, z: 0 };
+    this._tmpVec3B = { x: 0, y: 0, z: 0 };
+    this._tmpQuat = { x: 0, y: 0, z: 0, w: 1 };
   }
 
   PhysicsWorld3D.prototype.getEffectiveRestitution = function () {
@@ -198,9 +212,9 @@
       RAPIER.ColliderDesc.cuboid(halfW + 0.5, 0.5, depth + 1.0).setTranslation(0, halfH + 0.5, depth * 0.5)
     );
 
-    // 32 angled corner arc panels (8 segments per quadrant matching cornerRadius = 0.72)
+    // 24 angled corner arc panels (6 segments per quadrant matching cornerRadius = 0.72)
     const wallHalfT = 0.25;
-    const segsPerCorner = 8;
+    const segsPerCorner = 6;
     const dTheta = (Math.PI * 0.5) / segsPerCorner;
     const segHalfSpan = cr * Math.tan(dTheta * 0.5) + 0.08;
     const ix = halfW - cr;
@@ -287,17 +301,19 @@
       this.profile = MATERIAL_PROFILES[themeId];
     }
     this.bodies = [];
+    this._restFrames = 0;
+    this.isResting = false;
 
     const halfW = this.width * 0.5;
     const halfH = this.height * 0.5;
 
-    let baseRadius = 0.36;
+    let baseRadius = 0.37;
     if (mode === 'sphere') {
-      baseRadius = Math.min(0.42, Math.max(0.22, 0.365 * Math.sqrt(17 / Math.max(count, 10))));
+      baseRadius = Math.min(0.415, Math.max(0.22, 0.382 * Math.sqrt(13 / Math.max(count, 8))));
     } else if (mode === 'diamond') {
-      baseRadius = Math.min(0.38, Math.max(0.21, 0.34 * Math.sqrt(19 / Math.max(count, 10))));
+      baseRadius = Math.min(0.375, Math.max(0.21, 0.355 * Math.sqrt(13 / Math.max(count, 8))));
     } else {
-      baseRadius = Math.min(0.34, Math.max(0.22, 0.31 * Math.sqrt(15 / Math.max(count, 8))));
+      baseRadius = Math.min(0.34, Math.max(0.22, 0.322 * Math.sqrt(11 / Math.max(count, 7))));
     }
 
     const cols = mode === 'goldBar' ? 3 : Math.max(3, Math.floor((this.width - 0.5) / (baseRadius * 2.15)));
@@ -358,9 +374,28 @@
 
   PhysicsWorld3D.prototype.setGravity3D = function (gx, gy, gz) {
     const len = Math.hypot(gx, gy, gz) || 1;
-    this.gravity.x = gx / len;
-    this.gravity.y = gy / len;
-    this.gravity.z = gz / len;
+    const nx = gx / len;
+    const ny = gy / len;
+    const nz = gz / len;
+    const dg =
+      Math.abs(nx - this._lastGravX) +
+      Math.abs(ny - this._lastGravY) +
+      Math.abs(nz - this._lastGravZ);
+    if (dg > 0.0006) {
+      this._restFrames = 0;
+      this.isResting = false;
+      this._lastGravX = nx;
+      this._lastGravY = ny;
+      this._lastGravZ = nz;
+    }
+    this.gravity.x = nx;
+    this.gravity.y = ny;
+    this.gravity.z = nz;
+  };
+
+  PhysicsWorld3D.prototype.wakeUp = function () {
+    this._restFrames = 0;
+    this.isResting = false;
   };
 
   PhysicsWorld3D.prototype._syncBodiesToRapierVel = function () {
@@ -374,6 +409,7 @@
   };
 
   PhysicsWorld3D.prototype.applyInertialAcceleration = function (ax, ay, az) {
+    this.wakeUp();
     // d'Alembert inertial force from brisk wrist flicks (lighter airier objects scatter slightly livelier)
     const massFactor = Math.max(0.45, Math.min(1.25, Math.pow(0.45 / this.profile.mass, 0.12)));
     for (let i = 0; i < this.bodies.length; i += 1) {
@@ -386,6 +422,7 @@
   };
 
   PhysicsWorld3D.prototype.applyThemePop = function () {
+    this.wakeUp();
     for (let i = 0; i < this.bodies.length; i += 1) {
       const b = this.bodies[i];
       b.vx += (Math.random() - 0.5) * 1.6;
@@ -399,6 +436,7 @@
   };
 
   PhysicsWorld3D.prototype.shake = function () {
+    this.wakeUp();
     // Heavy gold ingots feel weightier; light tennis balls catch air & spin wildly
     const liftScale = Math.max(0.65, Math.min(1.3, Math.pow(0.45 / this.profile.mass, 0.15)));
     for (let i = 0; i < this.bodies.length; i += 1) {
@@ -834,8 +872,9 @@
   };
 
   PhysicsWorld3D.prototype._stepRapier = function (dt) {
-    const clampedDt = Math.min(dt, 1 / 30);
-    const substeps = 2;
+    const clampedDt = Math.min(Math.max(dt || 1 / 60, 1 / 240), 1 / 30);
+    // Adaptive substeps: 1 crisp CCD step on smooth 60-144Hz monitors, 2 substeps on slow frames
+    const substeps = clampedDt > 0.022 ? 2 : 1;
     const subDt = clampedDt / substeps;
 
     const gAccel = 14.5 * this.gravityScale;
@@ -843,7 +882,11 @@
     const gy = this.gravity.y * gAccel;
     const gz = this.gravity.z * gAccel;
 
-    this.rapierWorld.gravity = { x: gx, y: gy, z: gz };
+    const tmpGrav = this._tmpGrav;
+    tmpGrav.x = gx;
+    tmpGrav.y = gy;
+    tmpGrav.z = gz;
+    this.rapierWorld.gravity = tmpGrav;
 
     const effRest = this.getEffectiveRestitution();
     const effMu = Math.max(0.0, this.profile.muK * this.frictionScale);
@@ -865,15 +908,24 @@
     const rotAirK = (this.mode === 'goldBar' ? 0.14 : this.profile.rotAirDrag) * Math.max(0.25, this.airDragScale);
 
     const n = this.bodies.length;
+    if (this._prevVx.length < n) {
+      this._prevVx = new Float32Array(n);
+      this._prevVy = new Float32Array(n);
+      this._prevVz = new Float32Array(n);
+    }
+    const prevVx = this._prevVx;
+    const prevVy = this._prevVy;
+    const prevVz = this._prevVz;
+    const tmpVec3 = this._tmpVec3;
+    const tmpVec3B = this._tmpVec3B;
+    const tmpQuat = this._tmpQuat;
+
     const maxVel = 16.0;
     const maxOmega = 18.0;
     let maxImpactDelta = 0.0;
 
-    const prevVx = new Float32Array(n);
-    const prevVy = new Float32Array(n);
-    const prevVz = new Float32Array(n);
-
     this.rapierWorld.timestep = subDt;
+    const detectAudio = Boolean(this.onCollision && (!ns.SoundFX || ns.SoundFX.isEnabled()));
 
     for (let s = 0; s < substeps; s += 1) {
       for (let i = 0; i < n && i < this.rapierBodies.length; i += 1) {
@@ -895,41 +947,49 @@
         const nxV = Math.max(-maxVel, Math.min(maxVel, (v.x + magAx * subDt) * dragMul));
         const nyV = Math.max(-maxVel, Math.min(maxVel, (v.y + magAy * subDt) * dragMul));
         const nzV = Math.max(-maxVel, Math.min(maxVel, (v.z + magAz * subDt) * dragMul));
-        rb.setLinvel({ x: nxV, y: nyV, z: nzV }, true);
+        if (vMag > 0.002 || Math.abs(nxV - v.x) + Math.abs(nyV - v.y) + Math.abs(nzV - v.z) > 0.0005) {
+          tmpVec3.x = nxV;
+          tmpVec3.y = nyV;
+          tmpVec3.z = nzV;
+          rb.setLinvel(tmpVec3, true);
+        }
 
         const wSpeed = Math.hypot(w.x, w.y, w.z);
         if (wSpeed > 0.01) {
-          const rotDragMul = 1.0 / (1.0 + rotAirK * wSpeed * subDt);
-          rb.setAngvel(
-            {
-              x: Math.max(-maxOmega, Math.min(maxOmega, w.x * rotDragMul)),
-              y: Math.max(-maxOmega, Math.min(maxOmega, w.y * rotDragMul)),
-              z: Math.max(-maxOmega, Math.min(maxOmega, w.z * rotDragMul))
-            },
-            true
-          );
+          const settleExtra = wSpeed < 0.35 ? 1.8 : 0.0;
+          const rotDragMul = 1.0 / (1.0 + (rotAirK * wSpeed + settleExtra) * subDt);
+          tmpVec3B.x = Math.max(-maxOmega, Math.min(maxOmega, w.x * rotDragMul));
+          tmpVec3B.y = Math.max(-maxOmega, Math.min(maxOmega, w.y * rotDragMul));
+          tmpVec3B.z = Math.max(-maxOmega, Math.min(maxOmega, w.z * rotDragMul));
+          rb.setAngvel(tmpVec3B, true);
         }
 
-        prevVx[i] = nxV;
-        prevVy[i] = nyV;
-        prevVz[i] = nzV;
+        if (detectAudio) {
+          prevVx[i] = nxV;
+          prevVy[i] = nyV;
+          prevVz[i] = nzV;
+        }
       }
 
       this.rapierWorld.step();
 
-      for (let i = 0; i < n && i < this.rapierBodies.length; i += 1) {
-        const rb = this.rapierBodies[i];
-        const nv = rb.linvel();
-        const dvx = nv.x - (prevVx[i] + gx * subDt);
-        const dvy = nv.y - (prevVy[i] + gy * subDt);
-        const dvz = nv.z - (prevVz[i] + gz * subDt);
-        const dv = Math.hypot(dvx, dvy, dvz);
-        if (dv > maxImpactDelta) maxImpactDelta = dv;
+      if (detectAudio) {
+        for (let i = 0; i < n && i < this.rapierBodies.length; i += 1) {
+          const rb = this.rapierBodies[i];
+          const nv = rb.linvel();
+          const dvx = nv.x - (prevVx[i] + gx * subDt);
+          const dvy = nv.y - (prevVy[i] + gy * subDt);
+          const dvz = nv.z - (prevVz[i] + gz * subDt);
+          const dv = Math.hypot(dvx, dvy, dvz);
+          if (dv > maxImpactDelta) maxImpactDelta = dv;
+        }
       }
     }
 
     const halfW = this.width * 0.5;
     const halfH = this.height * 0.5;
+    let maxLinSq = 0;
+    let maxAngSq = 0;
     for (let i = 0; i < n && i < this.rapierBodies.length; i += 1) {
       const b = this.bodies[i];
       const rb = this.rapierBodies[i];
@@ -957,10 +1017,14 @@
         b.wy = 0;
         b.wz = 0;
         b.q.set(0, 0, 0, 1);
-        rb.setTranslation({ x: b.x, y: b.y, z: b.z }, true);
-        rb.setRotation({ x: 0, y: 0, z: 0, w: 1 }, true);
-        rb.setLinvel({ x: 0, y: 0, z: 0 }, true);
-        rb.setAngvel({ x: 0, y: 0, z: 0 }, true);
+        tmpVec3.x = b.x; tmpVec3.y = b.y; tmpVec3.z = b.z;
+        rb.setTranslation(tmpVec3, true);
+        tmpQuat.x = 0; tmpQuat.y = 0; tmpQuat.z = 0; tmpQuat.w = 1;
+        rb.setRotation(tmpQuat, true);
+        tmpVec3B.x = 0; tmpVec3B.y = 0; tmpVec3B.z = 0;
+        rb.setLinvel(tmpVec3B, true);
+        rb.setAngvel(tmpVec3B, true);
+        maxLinSq = 1;
       } else {
         b.x = t.x;
         b.y = t.y;
@@ -972,10 +1036,22 @@
         b.wx = nw.x;
         b.wy = nw.y;
         b.wz = nw.z;
+        const lSq = nv.x * nv.x + nv.y * nv.y + nv.z * nv.z;
+        const aSq = nw.x * nw.x + nw.y * nw.y + nw.z * nw.z;
+        if (lSq > maxLinSq) maxLinSq = lSq;
+        if (aSq > maxAngSq) maxAngSq = aSq;
       }
     }
 
-    if (this.onCollision && maxImpactDelta > 1.35) {
+    if (maxLinSq < 0.0004 && maxAngSq < 0.0016) {
+      this._restFrames += 1;
+      if (this._restFrames > 18) this.isResting = true;
+    } else {
+      this._restFrames = 0;
+      this.isResting = false;
+    }
+
+    if (detectAudio && maxImpactDelta > 1.35) {
       const nowMs = global.performance ? global.performance.now() : Date.now();
       if (nowMs - this._lastSoundMs > 48) {
         this._lastSoundMs = nowMs;
@@ -985,6 +1061,9 @@
   };
 
   PhysicsWorld3D.prototype.step = function (dt) {
+    if (this.isResting) {
+      return;
+    }
     if (this.engineMode === 'rapier' && this.rapierWorld) {
       this._stepRapier(dt);
       return;

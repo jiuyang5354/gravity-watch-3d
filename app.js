@@ -15,6 +15,8 @@
   const appState = {
     themeId: 'tennis',
     densityPreset: 'cinematic',
+    customBodyCount: null,
+    grassDensity: 'balanced',
     clockMode: 'live',
     complicationsMode: 'auto',
     tiltMode: 'drag',
@@ -22,6 +24,8 @@
     hdriPreset: 'studio09',
     aodMode: false,
     cleanRecord: false,
+    n8aoEnabled: true,
+    tennisFuzzEnabled: true,
     autoLevel: false,
     settingsOpen: false,
     tweaksOpen: false,
@@ -71,6 +75,10 @@
     tweaksPanel: document.getElementById('tweaksPanel'),
     tweaksCloseBtn: document.getElementById('tweaksCloseBtn'),
     densityPresetSelect: document.getElementById('densityPresetSelect'),
+    bodyCountRange: document.getElementById('bodyCountRange'),
+    bodyCountVal: document.getElementById('bodyCountVal'),
+    grassDensitySelect: document.getElementById('grassDensitySelect'),
+    perfStatsText: document.getElementById('perfStatsText'),
     clockModeSelect: document.getElementById('clockModeSelect'),
     caseSelect: document.getElementById('caseSelect'),
     hdriSelect: document.getElementById('hdriSelect'),
@@ -93,6 +101,8 @@
     airDragVal: document.getElementById('airDragVal'),
     gravityRange: document.getElementById('gravityRange'),
     gravityVal: document.getElementById('gravityVal'),
+    n8aoCheck: document.getElementById('n8aoCheck'),
+    tennisFuzzCheck: document.getElementById('tennisFuzzCheck'),
     autoLevelCheck: document.getElementById('autoLevelCheck'),
     aodCheck: document.getElementById('aodCheck'),
     cleanRecordCheck: document.getElementById('cleanRecordCheck'),
@@ -209,6 +219,19 @@
     });
   }
 
+  function getTargetBodyCount(theme) {
+    if (Number.isInteger(appState.customBodyCount) && appState.customBodyCount >= 6) {
+      return appState.customBodyCount;
+    }
+    if (appState.densityPreset === 'lite') {
+      return theme.liteCount || 8;
+    }
+    if (appState.densityPreset === 'dense40') {
+      return theme.promptCount;
+    }
+    return theme.cinematicCount;
+  }
+
   function rebuildPhysicsAndScene() {
     const theme = WATCH_THEMES[appState.themeId];
     const mode =
@@ -217,12 +240,17 @@
         : appState.themeId === 'diamond'
         ? 'diamond'
         : 'sphere';
-    const count =
-      appState.densityPreset === 'dense40' ? theme.promptCount : theme.cinematicCount;
+    const count = getTargetBodyCount(theme);
+
+    if (els.bodyCountRange && els.bodyCountVal) {
+      els.bodyCountRange.value = String(count);
+      els.bodyCountVal.textContent = String(count);
+    }
 
     world3d.configure(mode, count, appState.themeId);
     scene3d.rebuildBodies(appState.themeId, world3d.bodies);
     syncRestitutionDisplay();
+    updatePerfStripNow();
   }
 
   function applySceneTheme(themeId, shouldPop) {
@@ -278,11 +306,24 @@
     SoundFX.playClick();
   }
 
+  function updatePerfStripNow() {
+    if (!appState.tweaksOpen || !els.perfStatsText || typeof scene3d.getPerfStats !== 'function') return;
+    const st = scene3d.getPerfStats();
+    const grassPart = st.grassBlades > 0 ? ' · ' + st.grassBlades.toLocaleString() + ' 草叶' : '';
+    const n8aoPart = st.n8ao ? ' · N8AO' : '';
+    const fuzzPart = st.fuzz ? ' · ShellFur' : '';
+    els.perfStatsText.textContent =
+      Math.round(lastMeasuredFps) + ' FPS (' + lastAvgFrameMs.toFixed(1) + 'ms) · ' + st.bodies + ' 物体' + grassPart + n8aoPart + fuzzPart;
+  }
+
   function setTweaksOpen(open) {
     appState.tweaksOpen = Boolean(open);
     els.tweaksPanel.classList.toggle('is-open', appState.tweaksOpen);
     els.tweaksPanel.setAttribute('aria-hidden', String(!appState.tweaksOpen));
     els.tweaksToggleBtn.setAttribute('aria-expanded', String(appState.tweaksOpen));
+    if (appState.tweaksOpen) {
+      updatePerfStripNow();
+    }
   }
 
   function setTiltMode(mode) {
@@ -346,6 +387,8 @@
 
   function resetDefaults() {
     appState.densityPreset = 'cinematic';
+    appState.customBodyCount = null;
+    appState.grassDensity = 'balanced';
     appState.clockMode = 'live';
     appState.complicationsMode = 'auto';
     appState.autoLevel = false;
@@ -357,19 +400,18 @@
     world3d.gravityScale = 1.0;
 
     els.densityPresetSelect.value = 'cinematic';
+    if (els.grassDensitySelect && typeof scene3d.setGrassDensity === 'function') {
+      els.grassDensitySelect.value = 'balanced';
+      scene3d.setGrassDensity('balanced');
+    }
     els.clockModeSelect.value = 'live';
     els.complicationsSelect.value = 'auto';
     els.parallaxRange.value = '1.0';
     els.parallaxVal.textContent = '1.0×';
     if (els.bloomRange && els.bloomVal && typeof scene3d.setBloomStrength === 'function') {
-      els.bloomRange.value = '0.32';
-      els.bloomVal.textContent = '0.32';
-      scene3d.setBloomStrength(0.32);
-    }
-    if (els.trailRange && els.trailVal && typeof scene3d.setTrailStrength === 'function') {
-      els.trailRange.value = '1.0';
-      els.trailVal.textContent = '1.0×';
-      scene3d.setTrailStrength(1.0);
+      els.bloomRange.value = '0.06';
+      els.bloomVal.textContent = '0.06';
+      scene3d.setBloomStrength(0.06);
     }
     if (els.trailRange && els.trailVal && typeof scene3d.setTrailStrength === 'function') {
       els.trailRange.value = '1.0';
@@ -391,6 +433,16 @@
     els.airDragVal.textContent = '1.0×';
     els.gravityRange.value = '1.0';
     els.gravityVal.textContent = '1.0×';
+    appState.n8aoEnabled = true;
+    appState.tennisFuzzEnabled = true;
+    if (els.n8aoCheck && typeof scene3d.setN8AOEnabled === 'function') {
+      els.n8aoCheck.checked = true;
+      scene3d.setN8AOEnabled(true);
+    }
+    if (els.tennisFuzzCheck && typeof scene3d.setTennisFuzzEnabled === 'function') {
+      els.tennisFuzzCheck.checked = true;
+      scene3d.setTennisFuzzEnabled(true);
+    }
     els.autoLevelCheck.checked = false;
 
     setCaseVariant('series10');
@@ -452,6 +504,8 @@
       SoundFX.playClick();
     });
 
+    let lastHoverHitMs = 0;
+    let lastCursorVal = '';
     global.addEventListener('pointermove', function (e) {
       if (appState.isPointerDragging) {
         if (Math.hypot(e.clientX - appState.canvasDownX, e.clientY - appState.canvasDownY) > 6) {
@@ -480,11 +534,21 @@
         }
       } else {
         if (!appState.settingsOpen && e.target === els.canvas) {
-          const hoverHit = scene3d.hitTestHardware(e.clientX, e.clientY);
-          const isHardwareBtn =
-            hoverHit === 'crown' || hoverHit === 'sideButton' || hoverHit === 'actionButton';
-          els.canvas.style.cursor = isHardwareBtn ? 'pointer' : '';
-        } else {
+          const nowMs = global.performance ? global.performance.now() : Date.now();
+          if (nowMs - lastHoverHitMs > 48) {
+            lastHoverHitMs = nowMs;
+            const hoverHit = scene3d.hitTestHardware(e.clientX, e.clientY);
+            const nextCursor =
+              hoverHit === 'crown' || hoverHit === 'sideButton' || hoverHit === 'actionButton'
+                ? 'pointer'
+                : '';
+            if (nextCursor !== lastCursorVal) {
+              lastCursorVal = nextCursor;
+              els.canvas.style.cursor = nextCursor;
+            }
+          }
+        } else if (lastCursorVal !== '') {
+          lastCursorVal = '';
           els.canvas.style.cursor = '';
         }
 
@@ -616,9 +680,31 @@
 
     els.densityPresetSelect.addEventListener('change', function (e) {
       appState.densityPreset = e.target.value;
+      appState.customBodyCount = null;
       rebuildPhysicsAndScene();
       SoundFX.playClick();
     });
+
+    if (els.bodyCountRange && els.bodyCountVal) {
+      els.bodyCountRange.addEventListener('input', function (e) {
+        const val = parseInt(e.target.value, 10);
+        if (!Number.isFinite(val)) return;
+        appState.customBodyCount = Math.max(6, Math.min(32, val));
+        els.bodyCountVal.textContent = String(appState.customBodyCount);
+        rebuildPhysicsAndScene();
+      });
+    }
+
+    if (els.grassDensitySelect) {
+      els.grassDensitySelect.addEventListener('change', function (e) {
+        appState.grassDensity = e.target.value || 'balanced';
+        if (typeof scene3d.setGrassDensity === 'function') {
+          scene3d.setGrassDensity(appState.grassDensity);
+        }
+        updatePerfStripNow();
+        SoundFX.playClick();
+      });
+    }
 
     els.clockModeSelect.addEventListener('change', function (e) {
       appState.clockMode = e.target.value;
@@ -679,6 +765,7 @@
     els.parallaxRange.addEventListener('input', function (e) {
       const val = parseFloat(e.target.value);
       scene3d.parallaxStrength = val;
+      scene3d._pass1Dirty = true;
       els.parallaxVal.textContent = val.toFixed(1) + '×';
     });
 
@@ -705,26 +792,52 @@
     els.restitutionRange.addEventListener('input', function (e) {
       const val = parseFloat(e.target.value);
       world3d.restitutionOverride = val;
+      world3d.wakeUp();
       els.restitutionVal.textContent = val.toFixed(2);
     });
 
     els.frictionRange.addEventListener('input', function (e) {
       const val = parseFloat(e.target.value);
       world3d.frictionScale = val;
+      world3d.wakeUp();
       els.frictionVal.textContent = val.toFixed(1) + '×';
     });
 
     els.airDragRange.addEventListener('input', function (e) {
       const val = parseFloat(e.target.value);
       world3d.airDragScale = val;
+      world3d.wakeUp();
       els.airDragVal.textContent = val.toFixed(1) + '×';
     });
 
     els.gravityRange.addEventListener('input', function (e) {
       const val = parseFloat(e.target.value);
       world3d.gravityScale = val;
+      world3d.wakeUp();
       els.gravityVal.textContent = val.toFixed(1) + '×';
     });
+
+    if (els.n8aoCheck) {
+      els.n8aoCheck.addEventListener('change', function (e) {
+        appState.n8aoEnabled = e.target.checked;
+        if (typeof scene3d.setN8AOEnabled === 'function') {
+          scene3d.setN8AOEnabled(appState.n8aoEnabled);
+        }
+        updatePerfStripNow();
+        SoundFX.playClick();
+      });
+    }
+
+    if (els.tennisFuzzCheck) {
+      els.tennisFuzzCheck.addEventListener('change', function (e) {
+        appState.tennisFuzzEnabled = e.target.checked;
+        if (typeof scene3d.setTennisFuzzEnabled === 'function') {
+          scene3d.setTennisFuzzEnabled(appState.tennisFuzzEnabled);
+        }
+        updatePerfStripNow();
+        SoundFX.playClick();
+      });
+    }
 
     els.autoLevelCheck.addEventListener('change', function (e) {
       appState.autoLevel = e.target.checked;
@@ -769,18 +882,32 @@
       const h = els.watchCanvasWrap.clientHeight || 456;
       scene3d.resize(w, h);
     });
+
+    global.addEventListener(
+      'scroll',
+      function () {
+        if (typeof scene3d.invalidateRectCache === 'function') {
+          scene3d.invalidateRectCache();
+        }
+      },
+      { passive: true }
+    );
   }
 
-  function renderFrame(timestampSec) {
+  let lastTelemetryText = '';
+  let lastTelemetryMs = 0;
+
+  function renderFrame(timestampSec, dt) {
     if (appState.tiltMode === 'orbit' && !appState.isPointerDragging) {
       const angle = timestampSec * 1.1;
       appState.targetRoll = Math.sin(angle) * 1.05;
       appState.targetPitch = Math.cos(angle * 0.72) * 1.02;
     }
 
-    const lerp = 0.16;
-    appState.smoothPitch += (appState.targetPitch - appState.smoothPitch) * lerp;
-    appState.smoothRoll += (appState.targetRoll - appState.smoothRoll) * lerp;
+    // Frame-rate-independent exponential smoothing (identical feel at 60Hz, 120Hz, 144Hz)
+    const gimbalAlpha = 1.0 - Math.exp(-10.5 * dt);
+    appState.smoothPitch += (appState.targetPitch - appState.smoothPitch) * gimbalAlpha;
+    appState.smoothRoll += (appState.targetRoll - appState.smoothRoll) * gimbalAlpha;
 
     const cp = Math.cos(appState.smoothPitch);
     const sp = Math.sin(appState.smoothPitch);
@@ -796,24 +923,35 @@
     appState.smoothGravity.z = gz;
 
     world3d.setGravity3D(gx, gy, gz);
-    world3d.step(1 / 60);
+    world3d.step(dt);
 
-    const sx = (gx >= 0 ? '+' : '') + gx.toFixed(2);
-    const sy = (gy >= 0 ? '+' : '') + gy.toFixed(2);
-    const sz = (gz >= 0 ? '+' : '') + gz.toFixed(2);
-    els.gravityTelemetry.textContent = 'GX ' + sx + ' · GY ' + sy + ' · GZ ' + sz;
+    const nowMs = timestampSec * 1000;
+    if (nowMs - lastTelemetryMs > 66) {
+      lastTelemetryMs = nowMs;
+      const sx = (gx >= 0 ? '+' : '') + gx.toFixed(2);
+      const sy = (gy >= 0 ? '+' : '') + gy.toFixed(2);
+      const sz = (gz >= 0 ? '+' : '') + gz.toFixed(2);
+      const nextTelemetry = 'GX ' + sx + ' · GY ' + sy + ' · GZ ' + sz;
+      if (nextTelemetry !== lastTelemetryText) {
+        lastTelemetryText = nextTelemetry;
+        els.gravityTelemetry.textContent = nextTelemetry;
+      }
+    }
 
-    els.tiltDot.style.transform =
-      'translate(' + (gx * 150).toFixed(1) + 'px, ' + (-gy * 150).toFixed(1) + 'px)';
+    if (appState.isPointerDragging) {
+      els.tiltDot.style.transform =
+        'translate3d(' + (gx * 150).toFixed(1) + 'px, ' + (-gy * 150).toFixed(1) + 'px, 0)';
+    }
 
     // Real 3D Three.js watch hardware rotation aligned with wrist gimbal
     const targetRotX = appState.settingsOpen ? 0 : sp * 0.34;
     const targetRotY = appState.settingsOpen ? 0 : sr * 0.44;
     const targetRotZ = appState.settingsOpen ? 0 : sr * 0.08;
 
-    appState.smoothRotX += (targetRotX - appState.smoothRotX) * 0.18;
-    appState.smoothRotY += (targetRotY - appState.smoothRotY) * 0.18;
-    appState.smoothRotZ += (targetRotZ - appState.smoothRotZ) * 0.18;
+    const rotAlpha = 1.0 - Math.exp(-12.0 * dt);
+    appState.smoothRotX += (targetRotX - appState.smoothRotX) * rotAlpha;
+    appState.smoothRotY += (targetRotY - appState.smoothRotY) * rotAlpha;
+    appState.smoothRotZ += (targetRotZ - appState.smoothRotZ) * rotAlpha;
 
     const camGx = appState.settingsOpen ? 0 : gx;
     const camGy = appState.settingsOpen ? 0 : gy;
@@ -825,16 +963,70 @@
       appState.aodMode,
       appState.smoothRotX,
       appState.smoothRotY,
-      appState.smoothRotZ
+      appState.smoothRotZ,
+      dt,
+      world3d.isResting
     );
   }
 
+  let perfFrameCount = 0;
+  let perfWindowStartMs = 0;
+  let lastMeasuredFps = 60;
+  let lastAvgFrameMs = 16.7;
+
+  global.__GRAVITY_PERF__ = function () {
+    const stats = typeof scene3d.getPerfStats === 'function' ? scene3d.getPerfStats() : {};
+    return {
+      fps: Math.round(lastMeasuredFps),
+      frameMs: Number(lastAvgFrameMs.toFixed(2)),
+      theme: appState.themeId,
+      bodies: stats.bodies || world3d.bodies.length,
+      grassBlades: stats.grassBlades || 0,
+      rtWidth: stats.rtWidth || 0,
+      rtHeight: stats.rtHeight || 0,
+      isResting: Boolean(world3d.isResting)
+    };
+  };
+
   function startLoop() {
+    let lastFrameMs = 0;
+    let rafId = 0;
+
     function tick(nowMs) {
-      renderFrame(nowMs * 0.001);
-      global.requestAnimationFrame(tick);
+      if (document.hidden) {
+        rafId = 0;
+        lastFrameMs = 0;
+        perfFrameCount = 0;
+        perfWindowStartMs = 0;
+        return;
+      }
+      const rawDt = lastFrameMs > 0 ? (nowMs - lastFrameMs) * 0.001 : 1 / 60;
+      lastFrameMs = nowMs;
+      const dt = Math.min(0.05, Math.max(1 / 240, rawDt));
+      renderFrame(nowMs * 0.001, dt);
+
+      perfFrameCount += 1;
+      if (!perfWindowStartMs) perfWindowStartMs = nowMs;
+      const elapsedMs = nowMs - perfWindowStartMs;
+      if (elapsedMs >= 500) {
+        lastMeasuredFps = (perfFrameCount * 1000) / elapsedMs;
+        lastAvgFrameMs = elapsedMs / perfFrameCount;
+        perfFrameCount = 0;
+        perfWindowStartMs = nowMs;
+        updatePerfStripNow();
+      }
+
+      rafId = global.requestAnimationFrame(tick);
     }
-    global.requestAnimationFrame(tick);
+
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden && !rafId) {
+        lastFrameMs = 0;
+        rafId = global.requestAnimationFrame(tick);
+      }
+    });
+
+    rafId = global.requestAnimationFrame(tick);
   }
 
   function init() {
@@ -846,19 +1038,26 @@
       scene3d.setToneMapping('neutral');
     }
     if (els.bloomRange && els.bloomVal && typeof scene3d.setBloomStrength === 'function') {
-      els.bloomRange.value = '0.32';
-      els.bloomVal.textContent = '0.32';
-      scene3d.setBloomStrength(0.32);
+      els.bloomRange.value = '0.06';
+      els.bloomVal.textContent = '0.06';
+      scene3d.setBloomStrength(0.06);
     }
     if (els.trailRange && els.trailVal && typeof scene3d.setTrailStrength === 'function') {
       els.trailRange.value = '1.0';
       els.trailVal.textContent = '1.0×';
       scene3d.setTrailStrength(1.0);
     }
-    if (els.trailRange && els.trailVal && typeof scene3d.setTrailStrength === 'function') {
-      els.trailRange.value = '1.0';
-      els.trailVal.textContent = '1.0×';
-      scene3d.setTrailStrength(1.0);
+    if (els.grassDensitySelect && typeof scene3d.setGrassDensity === 'function') {
+      els.grassDensitySelect.value = appState.grassDensity;
+      scene3d.setGrassDensity(appState.grassDensity);
+    }
+    if (els.n8aoCheck && typeof scene3d.setN8AOEnabled === 'function') {
+      els.n8aoCheck.checked = appState.n8aoEnabled;
+      scene3d.setN8AOEnabled(appState.n8aoEnabled);
+    }
+    if (els.tennisFuzzCheck && typeof scene3d.setTennisFuzzEnabled === 'function') {
+      els.tennisFuzzCheck.checked = appState.tennisFuzzEnabled;
+      scene3d.setTennisFuzzEnabled(appState.tennisFuzzEnabled);
     }
     if (els.physicsEngineSelect) {
       const rapierOpt = els.physicsEngineSelect.querySelector('option[value="rapier"]');

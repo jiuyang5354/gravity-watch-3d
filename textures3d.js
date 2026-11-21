@@ -7,11 +7,12 @@
     tennis: {
       id: 'tennis',
       name: '网球',
-      subtitle: 'Clay Court',
+      subtitle: 'Rubber Granule Court',
       accentColor: '#D6F52E',
       isLuxury: false,
-      cinematicCount: 17,
-      promptCount: 40
+      liteCount: 8,
+      cinematicCount: 13,
+      promptCount: 28
     },
     diamond: {
       id: 'diamond',
@@ -19,8 +20,9 @@
       subtitle: 'Velvet Cushion',
       accentColor: '#A8EEFF',
       isLuxury: true,
-      cinematicCount: 19,
-      promptCount: 36
+      liteCount: 9,
+      cinematicCount: 13,
+      promptCount: 24
     },
     basketball: {
       id: 'basketball',
@@ -28,8 +30,9 @@
       subtitle: 'Hardwood Court',
       accentColor: '#FF8529',
       isLuxury: false,
-      cinematicCount: 16,
-      promptCount: 40
+      liteCount: 8,
+      cinematicCount: 12,
+      promptCount: 26
     },
     goldBar: {
       id: 'goldBar',
@@ -37,8 +40,9 @@
       subtitle: 'Bullion Vault',
       accentColor: '#FFD65A',
       isLuxury: true,
-      cinematicCount: 15,
-      promptCount: 28
+      liteCount: 8,
+      cinematicCount: 11,
+      promptCount: 20
     },
     soccer: {
       id: 'soccer',
@@ -46,8 +50,9 @@
       subtitle: 'Grass Pitch',
       accentColor: '#98F568',
       isLuxury: false,
-      cinematicCount: 17,
-      promptCount: 40
+      liteCount: 8,
+      cinematicCount: 13,
+      promptCount: 28
     }
   };
 
@@ -113,7 +118,7 @@
     } else {
       tex.encoding = THREE.sRGBEncoding;
     }
-    tex.anisotropy = 8;
+    tex.anisotropy = 4;
     if (wrapRepeatX || wrapRepeatY) {
       tex.wrapS = THREE.RepeatWrapping;
       tex.wrapT = THREE.RepeatWrapping;
@@ -125,7 +130,7 @@
 
   function toDataTexture(canvas, wrapRepeatX, wrapRepeatY) {
     const tex = new THREE.CanvasTexture(canvas);
-    tex.anisotropy = 8;
+    tex.anisotropy = 4;
     if (wrapRepeatX || wrapRepeatY) {
       tex.wrapS = THREE.RepeatWrapping;
       tex.wrapT = THREE.RepeatWrapping;
@@ -200,7 +205,7 @@
     tex.magFilter = THREE.LinearFilter;
     tex.minFilter = THREE.LinearMipmapLinearFilter;
     tex.generateMipmaps = true;
-    tex.anisotropy = 8;
+    tex.anisotropy = 4;
     tex.needsUpdate = true;
     return tex;
   }
@@ -251,7 +256,7 @@
     return blendNormalTexturesData(baseData, detailImgData, detailStrength || 0.45, w, h, wrapX);
   }
 
-  function buildRoughnessTextureFromArray(rough, w, h, wrapX, detailImgData, weight) {
+  function buildRoughnessTextureFromArray(rough, w, h, wrapX, detailImgData, weight, blueChannelArray) {
     const data = new Uint8Array(w * h * 4);
     const d = detailImgData ? detailImgData.data : null;
     const wgt = weight || 0.3;
@@ -263,10 +268,13 @@
         rv = rv * (1.0 - wgt) + dr * wgt;
       }
       const val = Math.max(0, Math.min(255, Math.round(rv * 255)));
+      const bVal = blueChannelArray
+        ? Math.max(0, Math.min(255, Math.round(blueChannelArray[i] * 255)))
+        : val;
       const idx = i * 4;
       data[idx] = val;
       data[idx + 1] = val;
-      data[idx + 2] = val;
+      data[idx + 2] = bVal;
       data[idx + 3] = 255;
     }
 
@@ -276,7 +284,7 @@
     tex.magFilter = THREE.LinearFilter;
     tex.minFilter = THREE.LinearMipmapLinearFilter;
     tex.generateMipmaps = true;
-    tex.anisotropy = 8;
+    tex.anisotropy = 4;
     tex.needsUpdate = true;
     return tex;
   }
@@ -292,16 +300,16 @@
     const h = 256;
     const hdr = new Float32Array(w * h * 4);
 
-    // Photographer strip-box softboxes separated by crisp dark negative-fill bands
-    // so brushed titanium, 999.9 bullion & sapphire edges catch razor specular ribbons
+    // Photographer strip-box softboxes + razor rim ribbons separated by dark negative-fill bands
+    // so brushed titanium, 999.9 bullion, sapphire bevels & BVH diamond facets catch crisp studio panels
     const panels = [
-      { lon: -0.42, lat: 0.96, rx: 0.56, ry: 0.14, r: 7.4, g: 7.0, b: 6.2 },
-      { lon: -1.78, lat: 0.34, rx: 0.16, ry: 0.72, r: 6.8, g: 5.7, b: 4.1 },
-      { lon: 1.72, lat: 0.18, rx: 0.15, ry: 0.68, r: 4.2, g: 5.4, b: 7.0 },
-      { lon: 0.42, lat: -0.82, rx: 0.52, ry: 0.14, r: 2.2, g: 1.8, b: 1.2 },
-      { lon: 0.78, lat: 0.64, rx: 0.09, ry: 0.09, r: 15.0, g: 14.8, b: 14.2 },
-      { lon: -1.08, lat: 0.58, rx: 0.08, ry: 0.08, r: 13.5, g: 12.6, b: 11.2 },
-      { lon: 2.42, lat: 0.48, rx: 0.10, ry: 0.10, r: 10.5, g: 11.8, b: 13.8 }
+      { lon: -0.42, lat: 0.96, rx: 0.54, ry: 0.12, r: 8.4, g: 8.0, b: 7.1 },
+      { lon: -1.78, lat: 0.34, rx: 0.13, ry: 0.74, r: 7.8, g: 6.4, b: 4.5 },
+      { lon: 1.72, lat: 0.18, rx: 0.12, ry: 0.70, r: 4.8, g: 6.1, b: 8.2 },
+      { lon: 0.42, lat: -0.82, rx: 0.48, ry: 0.12, r: 2.3, g: 1.9, b: 1.3 },
+      { lon: 0.78, lat: 0.64, rx: 0.07, ry: 0.07, r: 17.5, g: 17.2, b: 16.5 },
+      { lon: -1.08, lat: 0.58, rx: 0.065, ry: 0.065, r: 15.5, g: 14.2, b: 12.6 },
+      { lon: 2.42, lat: 0.48, rx: 0.08, ry: 0.08, r: 12.5, g: 13.8, b: 16.2 }
     ];
 
     for (let y = 0; y < h; y += 1) {
@@ -342,12 +350,15 @@
 
     const equirect = new THREE.DataTexture(hdr, w, h, THREE.RGBAFormat, THREE.FloatType);
     equirect.mapping = THREE.EquirectangularReflectionMapping;
+    equirect.wrapS = THREE.RepeatWrapping;
+    equirect.wrapT = THREE.ClampToEdgeWrapping;
     equirect.minFilter = canFloatLinear ? THREE.LinearFilter : THREE.NearestFilter;
     equirect.magFilter = canFloatLinear ? THREE.LinearFilter : THREE.NearestFilter;
     equirect.needsUpdate = true;
 
     const rt = pmrem.fromEquirectangular(equirect);
-    equirect.dispose();
+    rt.texture.userData = rt.texture.userData || {};
+    rt.texture.userData.equirectTex = equirect;
     pmrem.dispose();
     return rt.texture;
   }
@@ -356,24 +367,17 @@
      2. Photorealistic Court & Vault Floors (Web CC0 + Procedural)
      ========================================================= */
   function buildClayCourtMaps() {
+    // 1024x1248 Cushioned Acrylic / EPDM Rubber-Granule Tennis Court (zero loose dust, tactile rubber pebble relief)
     const w = 1024;
     const h = 1248;
     const c = makeCanvas(w, h);
     const ctx = c.getContext('2d');
 
     const bgGrad = ctx.createRadialGradient(w * 0.5, h * 0.5, 180, w * 0.5, h * 0.5, w * 0.92);
-    bgGrad.addColorStop(0, '#132D18');
-    bgGrad.addColorStop(1, '#040D06');
+    bgGrad.addColorStop(0, '#14331C');
+    bgGrad.addColorStop(1, '#050F08');
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, w, h);
-
-    // Subtle granular turf/apron stipple outside the clay perimeter
-    for (let i = 0; i < 4800; i += 1) {
-      const gx = Math.random() * w;
-      const gy = Math.random() * h;
-      ctx.fillStyle = i % 2 === 0 ? 'rgba(64, 130, 68, 0.08)' : 'rgba(2, 10, 4, 0.14)';
-      ctx.fillRect(gx, gy, 2, 2);
-    }
 
     // Recalibrated for 1.5x extended parallax floor (6.00 x 7.32)
     const padX = w * 0.225;
@@ -381,60 +385,53 @@
     const cw = w - padX * 2;
     const ch = h - padY * 2;
 
-    const clayGrad = ctx.createLinearGradient(0, padY, 0, padY + ch);
-    clayGrad.addColorStop(0, '#8C341B');
-    clayGrad.addColorStop(0.5, '#772A15');
-    clayGrad.addColorStop(1, '#5E200E');
-    ctx.fillStyle = clayGrad;
+    const courtGrad = ctx.createLinearGradient(0, padY, 0, padY + ch);
+    courtGrad.addColorStop(0, '#8E3824');
+    courtGrad.addColorStop(0.5, '#7B2E1D');
+    courtGrad.addColorStop(1, '#662416');
+    ctx.fillStyle = courtGrad;
     ctx.fillRect(padX, padY, cw, ch);
 
-    if (photoAssets.clayDiff) {
+    // Subtle real rubber surface photographic macro-variation across whole cushioned mat
+    if (photoAssets.rubberDiff) {
       ctx.save();
-      ctx.beginPath();
-      ctx.rect(padX, padY, cw, ch);
-      ctx.clip();
-      ctx.globalAlpha = 0.58;
+      ctx.globalAlpha = 0.10;
       ctx.globalCompositeOperation = 'soft-light';
-      drawTiledImage(ctx, photoAssets.clayDiff, w, h, 3, 3.6);
+      drawTiledImage(ctx, photoAssets.rubberDiff, w, h, 8, 9.6);
       ctx.restore();
-    } else {
-      for (let i = 0; i < 11000; i += 1) {
-        const rx = padX + Math.random() * cw;
-        const ry = padY + Math.random() * ch;
-        ctx.fillStyle =
-          i % 3 === 0
-            ? 'rgba(255, 198, 166, 0.09)'
-            : i % 3 === 1
-            ? 'rgba(48, 14, 6, 0.11)'
-            : 'rgba(184, 72, 40, 0.12)';
-        ctx.fillRect(rx, ry, 2.4, 2.4);
-      }
     }
 
-    // Roland-Garros drag-mat horizontal sweeping lines & baseline wear patches
+    // Faint squeegee acrylic cushion-coat application bands (authentic multi-coat sports surface)
     ctx.save();
-    ctx.beginPath();
-    ctx.rect(padX, padY, cw, ch);
-    ctx.clip();
-    for (let y = padY; y < padY + ch; y += 6) {
-      ctx.fillStyle = (y % 12 === 0) ? 'rgba(255, 206, 178, 0.03)' : 'rgba(38, 10, 4, 0.03)';
-      ctx.fillRect(padX, y, cw, 2);
+    for (let y = 0; y < h; y += 16) {
+      ctx.fillStyle = y % 32 === 0 ? 'rgba(255, 236, 226, 0.012)' : 'rgba(6, 4, 4, 0.014)';
+      ctx.fillRect(0, y, w, 8);
     }
-    const baseWearTop = ctx.createRadialGradient(w * 0.5, padY + 14, 6, w * 0.5, padY + 14, cw * 0.36);
-    baseWearTop.addColorStop(0, 'rgba(64, 20, 8, 0.22)');
-    baseWearTop.addColorStop(1, 'rgba(64, 20, 8, 0.0)');
-    ctx.fillStyle = baseWearTop;
-    ctx.fillRect(padX, padY, cw, ch * 0.25);
-
-    const baseWearBot = ctx.createRadialGradient(w * 0.5, padY + ch - 16, 6, w * 0.5, padY + ch - 16, cw * 0.38);
-    baseWearBot.addColorStop(0, 'rgba(58, 18, 8, 0.24)');
-    baseWearBot.addColorStop(1, 'rgba(58, 18, 8, 0.0)');
-    ctx.fillStyle = baseWearBot;
-    ctx.fillRect(padX, padY + ch * 0.72, cw, ch * 0.28);
     ctx.restore();
 
-    ctx.strokeStyle = 'rgba(222, 224, 218, 0.82)';
-    ctx.lineWidth = 4.0;
+    // Refined fine-grain EPDM rubber & silica micro-granule speckles (delicate tournament court finish, baked once)
+    for (let i = 0; i < 22000; i += 1) {
+      const gx = Math.random() * w;
+      const gy = Math.random() * h;
+      const inCourt = gx >= padX && gx <= padX + cw && gy >= padY && gy <= padY + ch;
+      const sz = i % 6 === 0 ? 1.5 : 1.05;
+      const kind = i % 6;
+      if (inCourt) {
+        if (kind === 0) ctx.fillStyle = 'rgba(34, 14, 10, 0.10)';
+        else if (kind === 1) ctx.fillStyle = 'rgba(218, 140, 114, 0.08)';
+        else if (kind === 2) ctx.fillStyle = 'rgba(72, 24, 14, 0.09)';
+        else ctx.fillStyle = 'rgba(170, 78, 52, 0.07)';
+      } else {
+        if (kind === 0) ctx.fillStyle = 'rgba(4, 12, 6, 0.11)';
+        else if (kind === 1) ctx.fillStyle = 'rgba(64, 128, 76, 0.07)';
+        else ctx.fillStyle = 'rgba(16, 48, 24, 0.09)';
+      }
+      ctx.fillRect(gx, gy, sz, sz);
+    }
+
+    // Crisp acrylic painted court lines conforming tightly over the rubber-granule substrate
+    ctx.strokeStyle = 'rgba(226, 228, 222, 0.86)';
+    ctx.lineWidth = 4.2;
     ctx.strokeRect(padX, padY, cw, ch);
 
     const singlesInset = cw * 0.135;
@@ -458,58 +455,80 @@
     ctx.lineTo(w * 0.5, padY + ch);
     ctx.stroke();
 
-    // Soft clay dust speckles dusted lightly over chalk lines
-    ctx.save();
-    for (let i = 0; i < 650; i += 1) {
-      ctx.fillStyle = 'rgba(176, 72, 42, 0.22)';
-      ctx.fillRect(padX + Math.random() * cw, padY + Math.random() * ch, 2, 2);
-    }
-    ctx.restore();
-
-    ctx.strokeStyle = 'rgba(12, 6, 4, 0.35)';
+    // Subtle net shadow & white net tape across court center
+    ctx.strokeStyle = 'rgba(10, 6, 4, 0.34)';
     ctx.lineWidth = 10;
     ctx.beginPath();
     ctx.moveTo(padX - 14, h * 0.5 + 4);
     ctx.lineTo(padX + cw + 14, h * 0.5 + 4);
     ctx.stroke();
 
-    ctx.strokeStyle = 'rgba(226, 226, 220, 0.46)';
+    ctx.strokeStyle = 'rgba(228, 228, 222, 0.50)';
     ctx.lineWidth = 4.2;
     ctx.beginPath();
     ctx.moveTo(padX - 14, h * 0.5);
     ctx.lineTo(padX + cw + 14, h * 0.5);
     ctx.stroke();
 
-    let normalMap;
-    let roughnessMap;
-    if (photoAssets.clayNor && photoAssets.trackNor && photoAssets.clayRough) {
-      const nw = 1024;
-      const nh = 1248;
-      const baseN = sampleTiledImageData(photoAssets.clayNor, nw, nh, 3, 3.6);
-      const trackN = sampleTiledImageData(photoAssets.trackNor, nw, nh, 4.5, 5.4);
-      normalMap = blendNormalTexturesData(baseN, trackN, 0.45, nw, nh, false);
+    // Build refined fine-grained cushioned EPDM rubber height, normal & matte-satin roughness maps
+    const nw = 512;
+    const nh = 624;
+    const height = new Float32Array(nw * nh);
+    const rough = new Float32Array(nw * nh);
 
-      const roughC = makeCanvas(nw, nh);
-      const rCtx = roughC.getContext('2d');
-      drawTiledImage(rCtx, photoAssets.clayRough, nw, nh, 3, 3.6);
-      roughnessMap = toDataTexture(roughC);
-    } else {
-      const nw = 512;
-      const nh = 624;
-      const height = new Float32Array(nw * nh);
-      const rough = new Float32Array(nw * nh);
-      for (let i = 0; i < nw * nh; i += 1) {
-        height[i] = 0.5 + (Math.random() - 0.5) * 0.28;
-        rough[i] = 0.86 + Math.random() * 0.11;
+    // Scatter fine rounded micro-pellets tightly sealed under smooth pigmented acrylic coat (baked once -> 0 runtime Voronoi cost)
+    height.fill(0.42);
+    const pelletCount = 20000;
+    for (let i = 0; i < pelletCount; i += 1) {
+      const cx = Math.random() * nw;
+      const cy = Math.random() * nh;
+      const rad = i % 4 === 0 ? 1.3 : 0.92;
+      const peak = 0.18 + Math.random() * 0.20;
+      const rInt = Math.ceil(rad);
+      const x0 = Math.max(0, Math.floor(cx - rInt));
+      const x1 = Math.min(nw - 1, Math.ceil(cx + rInt));
+      const y0 = Math.max(0, Math.floor(cy - rInt));
+      const y1 = Math.min(nh - 1, Math.ceil(cy + rInt));
+      const invR2 = 1.0 / (rad * rad);
+      for (let py = y0; py <= y1; py += 1) {
+        const dy = py - cy;
+        const dy2 = dy * dy;
+        const rowOff = py * nw;
+        for (let px = x0; px <= x1; px += 1) {
+          const dx = px - cx;
+          const d2 = (dx * dx + dy2) * invR2;
+          if (d2 < 1.0) {
+            const dome = 0.42 + Math.sqrt(1.0 - d2) * peak;
+            const pIdx = rowOff + px;
+            if (dome > height[pIdx]) height[pIdx] = dome;
+          }
+        }
       }
-      normalMap = buildNormalTextureFromHeight(height, nw, nh, 1.5, false);
-      roughnessMap = buildRoughnessTextureFromArray(rough, nw, nh, false);
     }
+
+    // Subtle fine silica texture + refined velvety-matte cushion roughness [0.70 crown .. 0.92 valley]
+    for (let y = 0; y < nh; y += 1) {
+      const ny = y / nh;
+      const nearBaseTop = Math.exp(-Math.pow((ny - 0.22) * 7.5, 2));
+      const nearBaseBot = Math.exp(-Math.pow((ny - 0.78) * 7.5, 2));
+      const wearPol = (nearBaseTop + nearBaseBot) * 0.06;
+      const rowOff = y * nw;
+      for (let x = 0; x < nw; x += 1) {
+        const pIdx = rowOff + x;
+        const grit = (Math.random() - 0.5) * 0.065;
+        const hVal = Math.max(0, Math.min(1, height[pIdx] + grit));
+        height[pIdx] = hVal;
+        rough[pIdx] = Math.max(0.70, Math.min(0.92, 0.88 - (hVal - 0.42) * 0.28 - wearPol));
+      }
+    }
+
+    const rubberNor = photoAssets.rubberNor ? sampleTiledImageData(photoAssets.rubberNor, nw, nh, 12, 14) : null;
+    const rubberRough = photoAssets.rubberRough ? sampleTiledImageData(photoAssets.rubberRough, nw, nh, 12, 14) : null;
 
     return {
       map: toSRGBTexture(c),
-      normalMap: normalMap,
-      roughnessMap: roughnessMap
+      normalMap: buildNormalTextureFromHeight(height, nw, nh, 1.85, false, rubberNor, 0.34),
+      roughnessMap: buildRoughnessTextureFromArray(rough, nw, nh, false, rubberRough, 0.18)
     };
   }
 
@@ -522,14 +541,18 @@
     const roughC = makeCanvas(w, h);
     const rCtx = roughC.getContext('2d');
 
-    if (photoAssets.woodDiff && photoAssets.woodRough) {
-      drawTiledImage(ctx, photoAssets.woodDiff, w, h, 3, 3.6);
-      // Warm translucent walnut-maple varnish glaze (keeps rich wood grain visible)
-      ctx.fillStyle = 'rgba(18, 7, 2, 0.36)';
+    const mapleD = photoAssets.mapleDiff || photoAssets.woodDiff;
+    const mapleR = photoAssets.mapleRough || photoAssets.woodRough;
+    const mapleN = photoAssets.mapleNor || photoAssets.woodNor;
+
+    if (mapleD && mapleR) {
+      drawTiledImage(ctx, mapleD, w, h, 2, 2.4);
+      // Warm translucent honey polyurethane varnish glaze preserving real WoodFloor051 maple planks
+      ctx.fillStyle = 'rgba(225, 152, 58, 0.11)';
       ctx.fillRect(0, 0, w, h);
 
-      drawTiledImage(rCtx, photoAssets.woodRough, w, h, 3, 3.6);
-      rCtx.fillStyle = 'rgba(42, 42, 42, 0.58)';
+      drawTiledImage(rCtx, mapleR, w, h, 2, 2.4);
+      rCtx.fillStyle = 'rgba(72, 72, 72, 0.52)';
       rCtx.fillRect(0, 0, w, h);
     } else {
       const plankW = 24;
@@ -563,8 +586,8 @@
     }
 
     const floorSpot = ctx.createRadialGradient(w * 0.5, h * 0.54, 60, w * 0.5, h * 0.54, w * 0.78);
-    floorSpot.addColorStop(0, 'rgba(130, 68, 26, 0.18)');
-    floorSpot.addColorStop(1, 'rgba(0, 0, 0, 0.58)');
+    floorSpot.addColorStop(0, 'rgba(145, 78, 22, 0.10)');
+    floorSpot.addColorStop(1, 'rgba(0, 0, 0, 0.24)');
     ctx.fillStyle = floorSpot;
     ctx.fillRect(0, 0, w, h);
 
@@ -620,19 +643,19 @@
       targetCtx.stroke();
     };
 
-    ctx.strokeStyle = 'rgba(224, 222, 214, 0.82)';
+    ctx.strokeStyle = 'rgba(242, 242, 238, 0.90)';
     ctx.lineWidth = 3.8;
     drawLines(ctx);
 
     // Matte court paint lines in roughness map vs glossy maple planks
-    rCtx.strokeStyle = 'rgb(112, 112, 112)';
+    rCtx.strokeStyle = 'rgb(156, 156, 156)';
     rCtx.lineWidth = 4.2;
     drawLines(rCtx);
 
     let normalMap;
-    if (photoAssets.woodNor) {
+    if (mapleN) {
       const norC = makeCanvas(w, h);
-      drawTiledImage(norC.getContext('2d'), photoAssets.woodNor, w, h, 3, 3.6);
+      drawTiledImage(norC.getContext('2d'), mapleN, w, h, 2, 2.4);
       normalMap = toDataTexture(norC);
     } else {
       const nw = 512;
@@ -656,88 +679,100 @@
   }
 
   function buildSoccerPitchMaps() {
+    // Rich dark stadium loam soil + short rootbed thatch beneath 16,200 real 3D instanced grass blades,
+    // plus a crisp dedicated chalk lineMask sampled by each 3D grass blade for painted white chalk tips.
     const w = 1024;
     const h = 1248;
     const c = makeCanvas(w, h);
     const ctx = c.getContext('2d');
     const roughC = makeCanvas(w, h);
     const rCtx = roughC.getContext('2d');
+    const lineMaskC = makeCanvas(w, h);
+    const lmCtx = lineMaskC.getContext('2d');
 
     if (photoAssets.grassDiff) {
       drawTiledImage(ctx, photoAssets.grassDiff, w, h, 4, 4.8);
-      ctx.fillStyle = 'rgba(10, 28, 4, 0.56)';
+      ctx.fillStyle = 'rgba(14, 34, 8, 0.62)';
       ctx.fillRect(0, 0, w, h);
 
       const stripeCount = 14;
       const stripeH = h / stripeCount;
       for (let i = 0; i < stripeCount; i += 1) {
-        ctx.fillStyle = i % 2 === 0 ? 'rgba(74, 134, 34, 0.16)' : 'rgba(4, 16, 2, 0.30)';
+        ctx.fillStyle = i % 2 === 0 ? 'rgba(64, 126, 28, 0.16)' : 'rgba(6, 16, 3, 0.28)';
         ctx.fillRect(0, i * stripeH, w, stripeH);
       }
     } else {
       const stripeCount = 14;
       const stripeH = h / stripeCount;
       for (let i = 0; i < stripeCount; i += 1) {
-        ctx.fillStyle = i % 2 === 0 ? '#1F4010' : '#142B09';
+        ctx.fillStyle = i % 2 === 0 ? '#1E3A0F' : '#152A0A';
         ctx.fillRect(0, i * stripeH, w, stripeH);
       }
-      for (let i = 0; i < 14000; i += 1) {
-        const gx = Math.random() * w;
-        const gy = Math.random() * h;
-        ctx.fillStyle = i % 2 === 0 ? 'rgba(136, 206, 72, 0.11)' : 'rgba(8, 22, 4, 0.16)';
-        ctx.fillRect(gx, gy, 2, 4.5);
-      }
+    }
+
+    // Organic dark topsoil loam crumbs & root thatch exposed whenever 3D grass blades part under a ball
+    for (let i = 0; i < 10000; i += 1) {
+      const gx = Math.random() * w;
+      const gy = Math.random() * h;
+      const kind = i % 5;
+      if (kind === 0) ctx.fillStyle = 'rgba(42, 31, 18, 0.32)';
+      else if (kind === 1) ctx.fillStyle = 'rgba(16, 12, 6, 0.38)';
+      else if (kind === 2) ctx.fillStyle = 'rgba(72, 114, 32, 0.16)';
+      else ctx.fillStyle = 'rgba(24, 42, 10, 0.24)';
+      ctx.fillRect(gx, gy, 2.5, 2.5);
     }
 
     const vig = ctx.createRadialGradient(w * 0.5, h * 0.5, 160, w * 0.5, h * 0.5, w * 0.92);
     vig.addColorStop(0, 'rgba(0, 0, 0, 0)');
-    vig.addColorStop(1, 'rgba(0, 0, 0, 0.44)');
+    vig.addColorStop(1, 'rgba(0, 0, 0, 0.52)');
     ctx.fillStyle = vig;
     ctx.fillRect(0, 0, w, h);
 
-    ctx.strokeStyle = 'rgba(222, 228, 218, 0.80)';
-    ctx.lineWidth = 3.8;
+    // Draw stadium pitch markings onto BOTH soil base and dedicated chalk lineMask for 3D grass blades
+    lmCtx.fillStyle = '#000000';
+    lmCtx.fillRect(0, 0, w, h);
 
-    const padX = w * 0.2;
-    const topY = h * 0.2;
-    const botY = h * 0.82;
-    const pw = w - padX * 2;
-    ctx.strokeRect(padX, topY, pw, botY - topY);
+    const drawPitchMarkings = function (targetCtx, strokeCol, fillCol, lineW) {
+      targetCtx.strokeStyle = strokeCol;
+      targetCtx.fillStyle = fillCol;
+      targetCtx.lineWidth = lineW;
 
-    ctx.beginPath();
-    ctx.arc(w * 0.5, topY, w * 0.11, 0, Math.PI);
-    ctx.stroke();
+      const padX = w * 0.2;
+      const topY = h * 0.2;
+      const botY = h * 0.82;
+      const pw = w - padX * 2;
+      targetCtx.strokeRect(padX, topY, pw, botY - topY);
 
-    ctx.fillStyle = 'rgba(222, 228, 218, 0.80)';
-    ctx.beginPath();
-    ctx.arc(w * 0.5, topY, 5, 0, Math.PI * 2);
-    ctx.fill();
+      targetCtx.beginPath();
+      targetCtx.arc(w * 0.5, topY, w * 0.11, 0, Math.PI);
+      targetCtx.stroke();
 
-    const boxW = pw * 0.62;
-    const boxH = h * 0.17;
-    const boxX = (w - boxW) * 0.5;
-    ctx.strokeRect(boxX, botY - boxH, boxW, boxH);
+      targetCtx.beginPath();
+      targetCtx.arc(w * 0.5, topY, 6, 0, Math.PI * 2);
+      targetCtx.fill();
 
-    const goalW = pw * 0.28;
-    const goalH = h * 0.06;
-    ctx.strokeRect((w - goalW) * 0.5, botY - goalH, goalW, goalH);
+      const boxW = pw * 0.62;
+      const boxH = h * 0.17;
+      const boxX = (w - boxW) * 0.5;
+      targetCtx.strokeRect(boxX, botY - boxH, boxW, boxH);
 
-    const penSpotY = botY - h * 0.115;
-    // Slight dark soil wear halo around penalty spot
-    const spotWear = ctx.createRadialGradient(w * 0.5, penSpotY, 2, w * 0.5, penSpotY, 26);
-    spotWear.addColorStop(0, 'rgba(32, 24, 12, 0.36)');
-    spotWear.addColorStop(1, 'rgba(32, 24, 12, 0.0)');
-    ctx.fillStyle = spotWear;
-    ctx.fillRect(w * 0.5 - 30, penSpotY - 30, 60, 60);
+      const goalW = pw * 0.28;
+      const goalH = h * 0.06;
+      targetCtx.strokeRect((w - goalW) * 0.5, botY - goalH, goalW, goalH);
 
-    ctx.fillStyle = 'rgba(222, 228, 218, 0.80)';
-    ctx.beginPath();
-    ctx.arc(w * 0.5, penSpotY, 4.5, 0, Math.PI * 2);
-    ctx.fill();
+      const penSpotY = botY - h * 0.115;
+      targetCtx.beginPath();
+      targetCtx.arc(w * 0.5, penSpotY, 5.5, 0, Math.PI * 2);
+      targetCtx.fill();
 
-    ctx.beginPath();
-    ctx.arc(w * 0.5, penSpotY, w * 0.1, Math.PI * 1.18, Math.PI * 1.82);
-    ctx.stroke();
+      targetCtx.beginPath();
+      targetCtx.arc(w * 0.5, penSpotY, w * 0.1, Math.PI * 1.18, Math.PI * 1.82);
+      targetCtx.stroke();
+    };
+
+    drawPitchMarkings(ctx, 'rgba(232, 238, 228, 0.84)', 'rgba(232, 238, 228, 0.84)', 4.2);
+    // Slightly wider chalk spray on 3D blade mask so chalk-painted blades read crisply across gaps
+    drawPitchMarkings(lmCtx, '#FFFFFF', '#FFFFFF', 6.4);
 
     let normalMap;
     let roughnessMap;
@@ -750,7 +785,7 @@
       const stripeCount = 14;
       const stripeH = h / stripeCount;
       for (let i = 0; i < stripeCount; i += 1) {
-        rCtx.fillStyle = i % 2 === 0 ? 'rgba(180, 180, 180, 0.16)' : 'rgba(245, 245, 245, 0.24)';
+        rCtx.fillStyle = i % 2 === 0 ? 'rgba(200, 200, 200, 0.18)' : 'rgba(248, 248, 248, 0.28)';
         rCtx.fillRect(0, i * stripeH, w, stripeH);
       }
       roughnessMap = toDataTexture(roughC);
@@ -762,7 +797,7 @@
       const stripeCount = 14;
       for (let y = 0; y < nh; y += 1) {
         const stripeIdx = Math.floor((y / nh) * stripeCount);
-        const stripeR = stripeIdx % 2 === 0 ? 0.80 : 0.92;
+        const stripeR = stripeIdx % 2 === 0 ? 0.84 : 0.94;
         for (let x = 0; x < nw; x += 1) {
           const i = y * nw + x;
           height[i] = 0.5 + (Math.random() - 0.5) * 0.36;
@@ -776,12 +811,13 @@
     return {
       map: toSRGBTexture(c),
       normalMap: normalMap,
-      roughnessMap: roughnessMap
+      roughnessMap: roughnessMap,
+      lineMask: toDataTexture(lineMaskC)
     };
   }
 
   function buildObsidianVaultMaps() {
-    // 1024x1248 Honed Dark Obsidian & CNC-Machined Gunmetal Bank-Vault Floor for 04 金条
+    // 1024x1248 Honed Nero Marquina Black Marble & Vault Stone Floor for 04 金条
     const w = 1024;
     const h = 1248;
     const c = makeCanvas(w, h);
@@ -789,18 +825,21 @@
     const rC = makeCanvas(w, h);
     const rCtx = rC.getContext('2d');
 
-    const bgGrad = ctx.createRadialGradient(w * 0.5, h * 0.5, 48, w * 0.5, h * 0.5, w * 0.88);
-    bgGrad.addColorStop(0, '#1C2029');
-    bgGrad.addColorStop(0.6, '#0E1117');
-    bgGrad.addColorStop(1, '#040507');
-    ctx.fillStyle = bgGrad;
+    const mDiff = photoAssets.marbleDiff || photoAssets.metalDiff;
+    const mRough = photoAssets.marbleRough || photoAssets.metalRough;
+    const mNor = photoAssets.marbleNor || photoAssets.metalNor;
+
+    ctx.fillStyle = '#06080D';
     ctx.fillRect(0, 0, w, h);
 
-    if (photoAssets.metalDiff) {
+    if (mDiff) {
       ctx.save();
-      ctx.globalAlpha = 0.24;
-      ctx.globalCompositeOperation = 'soft-light';
-      drawTiledImage(ctx, photoAssets.metalDiff, w, h, 3, 3.6);
+      if ('filter' in ctx) {
+        ctx.filter = 'grayscale(0.88) contrast(1.18)';
+      }
+      ctx.globalAlpha = 0.34;
+      drawTiledImage(ctx, mDiff, w, h, 2, 2.4);
+      ctx.filter = 'none';
       ctx.restore();
     } else {
       for (let i = 0; i < 3600; i += 1) {
@@ -808,6 +847,12 @@
         ctx.fillRect(Math.random() * w * 0.35, Math.random() * h, w * 0.65, 1.2);
       }
     }
+
+    const edgeVig = ctx.createRadialGradient(w * 0.5, h * 0.5, w * 0.28, w * 0.5, h * 0.5, w * 0.88);
+    edgeVig.addColorStop(0, 'rgba(0, 0, 0, 0.0)');
+    edgeVig.addColorStop(1, 'rgba(0, 0, 0, 0.50)');
+    ctx.fillStyle = edgeVig;
+    ctx.fillRect(0, 0, w, h);
 
     // Subtle architectural vault framing bevel & CNC chamfer groove around interior perimeter
     const insetX = w * 0.21;
@@ -818,31 +863,31 @@
     ctx.strokeStyle = 'rgba(4, 5, 8, 0.78)';
     ctx.lineWidth = 7;
     ctx.strokeRect(insetX, insetY, frameW, frameH);
-    ctx.strokeStyle = 'rgba(130, 146, 178, 0.14)';
+    ctx.strokeStyle = 'rgba(130, 146, 178, 0.12)';
     ctx.lineWidth = 2;
     ctx.strokeRect(insetX + 6, insetY + 6, frameW - 12, frameH - 12);
 
-    // Honed obsidian roughness [0.28..0.46]: crisp specular reflections without chrome glare
+    // Honed stone marble roughness [0.32..0.54]: crisp stone micro-variation, never chrome mirror
     rCtx.fillStyle = 'rgb(88, 88, 88)';
     rCtx.fillRect(0, 0, w, h);
-    if (photoAssets.metalRough) {
+    if (mRough) {
       rCtx.save();
-      rCtx.globalAlpha = 0.38;
-      drawTiledImage(rCtx, photoAssets.metalRough, w, h, 3, 3.6);
+      rCtx.globalAlpha = 0.34;
+      drawTiledImage(rCtx, mRough, w, h, 2, 2.4);
       rCtx.restore();
     }
-    rCtx.strokeStyle = 'rgb(54, 54, 54)';
+    rCtx.strokeStyle = 'rgb(64, 64, 64)';
     rCtx.lineWidth = 4;
     rCtx.strokeRect(insetX + 6, insetY + 6, frameW - 12, frameH - 12);
 
     let normalMap;
-    if (photoAssets.metalNor) {
+    if (mNor) {
       const norC = makeCanvas(w, h);
       const nCtx = norC.getContext('2d');
       nCtx.fillStyle = 'rgb(128, 128, 255)';
       nCtx.fillRect(0, 0, w, h);
-      nCtx.globalAlpha = 0.55;
-      drawTiledImage(nCtx, photoAssets.metalNor, w, h, 3, 3.6);
+      nCtx.globalAlpha = 0.62;
+      drawTiledImage(nCtx, mNor, w, h, 2, 2.4);
       nCtx.globalAlpha = 1.0;
       nCtx.strokeStyle = 'rgb(112, 112, 245)';
       nCtx.lineWidth = 5;
@@ -900,9 +945,9 @@
   function buildDiamondVelvetMaps(presetId) {
     const preset = VELVET_PRESETS[presetId] || VELVET_PRESETS.obsidian;
 
-    // 1. High-resolution diffuse/refraction map (CanvasTexture, flipY = true)
-    const dw = 1024;
-    const dh = 1248;
+    // 1. Crisp diffuse/refraction map (512x624 -> 4x faster generation; procedural fiber detail added in shader)
+    const dw = 512;
+    const dh = 624;
     const diffC = makeCanvas(dw, dh);
     const dCtx = diffC.getContext('2d');
     const diffImg = dCtx.createImageData(dw, dh);
@@ -1031,7 +1076,7 @@
     dataTex.magFilter = THREE.LinearFilter;
     dataTex.minFilter = THREE.LinearMipmapLinearFilter;
     dataTex.generateMipmaps = true;
-    dataTex.anisotropy = 8;
+    dataTex.anisotropy = 4;
     dataTex.needsUpdate = true;
 
     return {
@@ -1046,15 +1091,18 @@
      3. Photorealistic 3D Object PBR Maps (Web CC0 + Procedural)
      ========================================================= */
   function buildTennisBallMaps() {
-    const w = 512;
-    const h = 256;
+    const w = 1024;
+    const h = 512;
     const diffC = makeCanvas(w, h);
     const dCtx = diffC.getContext('2d');
     const dImg = dCtx.createImageData(w, h);
 
-    const feltDiff = photoAssets.feltDiff ? sampleTiledImageData(photoAssets.feltDiff, w, h, 3, 2).data : null;
-    const feltNor = photoAssets.feltNor ? sampleTiledImageData(photoAssets.feltNor, w, h, 3, 2) : null;
-    const feltRough = photoAssets.feltRough ? sampleTiledImageData(photoAssets.feltRough, w, h, 3, 2) : null;
+    const fDiffSrc = photoAssets.feltDiff;
+    const fNorSrc = photoAssets.feltNor;
+    const fRoughSrc = photoAssets.feltRough;
+    const feltDiff = fDiffSrc ? sampleTiledImageData(fDiffSrc, w, h, 6, 3).data : null;
+    const feltNor = fNorSrc ? sampleTiledImageData(fNorSrc, w, h, 6, 3) : null;
+    const feltRough = fRoughSrc ? sampleTiledImageData(fRoughSrc, w, h, 6, 3) : null;
 
     let feltMean = 128;
     if (feltDiff) {
@@ -1069,75 +1117,101 @@
 
     const height = new Float32Array(w * h);
     const rough = new Float32Array(w * h);
+    const seamMask = new Float32Array(w * h);
 
+    // Precompute closed tennis seam curve in flat Float32Arrays for 2-stage coarse-to-fine search
     const seamSamples = 200;
-    const seamPts = [];
+    const seamX = new Float32Array(seamSamples);
+    const seamY = new Float32Array(seamSamples);
+    const seamZ = new Float32Array(seamSamples);
     const k = 0.36;
     const norm = 1 + k;
     const cZ = 2 * Math.sqrt(k);
     for (let s = 0; s < seamSamples; s += 1) {
       const t = (s / seamSamples) * Math.PI * 2;
-      seamPts.push([
-        (Math.cos(t) + k * Math.cos(3 * t)) / norm,
-        (Math.sin(t) - k * Math.sin(3 * t)) / norm,
-        (cZ * Math.sin(2 * t)) / norm
-      ]);
+      seamX[s] = (Math.cos(t) + k * Math.cos(3 * t)) / norm;
+      seamY[s] = (Math.sin(t) - k * Math.sin(3 * t)) / norm;
+      seamZ[s] = (cZ * Math.sin(2 * t)) / norm;
     }
+
+    const data = dImg.data;
+    const coarseStep = 10;
 
     for (let y = 0; y < h; y += 1) {
       const lat = (0.5 - y / h) * Math.PI;
       const cosLat = Math.cos(lat);
       const ny = Math.sin(lat);
+      const rowOff = y * w;
 
       for (let x = 0; x < w; x += 1) {
         const lon = (x / w - 0.5) * Math.PI * 2;
         const nx = cosLat * Math.cos(lon);
         const nz = cosLat * Math.sin(lon);
 
+        // Coarse pass (20 samples) skips >80% of off-seam pixels in O(1)
         let minD2 = 99;
-        for (let s = 0; s < seamSamples; s += 1) {
-          const sp = seamPts[s];
-          const dx = nx - sp[0];
-          const dy = ny - sp[1];
-          const dz = nz - sp[2];
+        let bestS = 0;
+        for (let s = 0; s < seamSamples; s += coarseStep) {
+          const dx = nx - seamX[s];
+          const dy = ny - seamY[s];
+          const dz = nz - seamZ[s];
           const d2 = dx * dx + dy * dy + dz * dz;
-          if (d2 < minD2) minD2 = d2;
+          if (d2 < minD2) {
+            minD2 = d2;
+            bestS = s;
+          }
+        }
+        if (minD2 < 0.085) {
+          for (let off = -coarseStep; off <= coarseStep; off += 1) {
+            let s = bestS + off;
+            if (s < 0) s += seamSamples;
+            else if (s >= seamSamples) s -= seamSamples;
+            const dx = nx - seamX[s];
+            const dy = ny - seamY[s];
+            const dz = nz - seamZ[s];
+            const d2 = dx * dx + dy * dy + dz * dz;
+            if (d2 < minD2) minD2 = d2;
+          }
         }
 
-        const pIdx = y * w + x;
+        const pIdx = rowOff + x;
         const idx = pIdx * 4;
 
-        const photoLuma = feltDiff ? (feltDiff[idx] * 0.5 + feltDiff[idx + 1] * 0.5 - feltMean) * 1.45 : 0;
-        const microFuzz = (Math.random() - 0.5) * 0.34;
+        const photoLuma = feltDiff ? (feltDiff[idx] * 0.5 + feltDiff[idx + 1] * 0.5 - feltMean) * 0.48 : 0;
+        const microFuzz = (Math.random() - 0.5) * 0.36;
 
-        if (minD2 < 0.0020) {
-          const rubberNoise = (Math.random() - 0.5) * 8;
-          dImg.data[idx] = 186 + rubberNoise;
-          dImg.data[idx + 1] = 184 + rubberNoise;
-          dImg.data[idx + 2] = 174 + rubberNoise;
-          dImg.data[idx + 3] = 255;
-          height[pIdx] = 0.10 + microFuzz * 0.06;
-          rough[pIdx] = 0.74;
+        if (minD2 < 0.0019) {
+          const rubberNoise = (Math.random() - 0.5) * 4;
+          data[idx] = 236 + rubberNoise;
+          data[idx + 1] = 236 + rubberNoise;
+          data[idx + 2] = 232 + rubberNoise;
+          data[idx + 3] = 255;
+          height[pIdx] = 0.09 + microFuzz * 0.05;
+          rough[pIdx] = 0.68;
+          seamMask[pIdx] = 0.0;
         } else if (minD2 < 0.0044) {
-          const lip = (minD2 - 0.0020) / 0.0024;
-          dImg.data[idx] = Math.round(36 + lip * 76);
-          dImg.data[idx + 1] = Math.round(46 + lip * 92);
-          dImg.data[idx + 2] = Math.round(5 + lip * 7);
-          dImg.data[idx + 3] = 255;
-          height[pIdx] = 0.18 + lip * 0.44;
-          rough[pIdx] = 0.98;
+          const lip = (minD2 - 0.0019) / 0.0025;
+          data[idx] = Math.round(126 + lip * 64);
+          data[idx + 1] = Math.round(154 + lip * 70);
+          data[idx + 2] = Math.round(22 + lip * 14);
+          data[idx + 3] = 255;
+          height[pIdx] = 0.16 + lip * 0.46;
+          rough[pIdx] = 0.90;
+          seamMask[pIdx] = Math.max(0.0, Math.min(1.0, (minD2 - 0.0022) / 0.0030));
         } else {
-          const tuft = Math.sin(nx * 145 + ny * 98) * Math.cos(nz * 138 - ny * 76) * 0.26;
-          const clump = Math.sin(nx * 46 - ny * 52) * Math.cos(nz * 48 + nx * 36) * 0.18;
+          const tuft = Math.sin(nx * 168 + ny * 112) * Math.cos(nz * 162 - ny * 88) * 0.28;
+          const clump = Math.sin(nx * 54 - ny * 60) * Math.cos(nz * 56 + nx * 42) * 0.20;
+          const fiberStrand = Math.sin((nx * 240 - nz * 190) + tuft * 3.0) * 0.14;
           const weave = feltDiff
-            ? photoLuma + (tuft + clump) * 26 + microFuzz * 22
-            : (tuft + clump + microFuzz) * 34;
-          dImg.data[idx] = Math.min(255, Math.max(0, Math.round(112 + weave * 0.85)));
-          dImg.data[idx + 1] = Math.min(255, Math.max(0, Math.round(138 + weave)));
-          dImg.data[idx + 2] = Math.min(255, Math.max(0, Math.round(12 + weave * 0.22)));
-          dImg.data[idx + 3] = 255;
-          height[pIdx] = 0.62 + microFuzz * 0.58 + tuft * 0.34 + clump * 0.16;
-          rough[pIdx] = Math.min(1.0, 0.96 + Math.abs(microFuzz) * 0.12);
+            ? photoLuma + (tuft + clump + fiberStrand) * 14 + microFuzz * 12
+            : (tuft + clump + fiberStrand + microFuzz) * 18;
+          data[idx] = Math.min(255, Math.max(0, Math.round(192 + weave * 0.85)));
+          data[idx + 1] = Math.min(255, Math.max(0, Math.round(226 + weave)));
+          data[idx + 2] = Math.min(255, Math.max(0, Math.round(36 + weave * 0.22)));
+          data[idx + 3] = 255;
+          height[pIdx] = 0.62 + microFuzz * 0.44 + tuft * 0.28 + clump * 0.12 + fiberStrand * 0.12;
+          rough[pIdx] = Math.min(1.0, 0.90 + Math.abs(microFuzz) * 0.08);
+          seamMask[pIdx] = minD2 < 0.0052 ? (minD2 - 0.0022) / 0.0030 : 1.0;
         }
       }
     }
@@ -1145,21 +1219,24 @@
     dCtx.putImageData(dImg, 0, 0);
     return {
       map: toSRGBTexture(diffC),
-      normalMap: buildNormalTextureFromHeight(height, w, h, 4.4, true, feltNor, 0.78),
-      roughnessMap: buildRoughnessTextureFromArray(rough, w, h, true, feltRough, 0.12)
+      normalMap: buildNormalTextureFromHeight(height, w, h, 3.4, true, feltNor, 0.58),
+      roughnessMap: buildRoughnessTextureFromArray(rough, w, h, true, feltRough, 0.18, seamMask)
     };
   }
 
   function buildBasketballMaps() {
-    const w = 768;
-    const h = 384;
+    const w = 1024;
+    const h = 512;
     const diffC = makeCanvas(w, h);
     const dCtx = diffC.getContext('2d');
     const dImg = dCtx.createImageData(w, h);
 
-    const leatherDiff = photoAssets.leatherBrownDiff ? sampleTiledImageData(photoAssets.leatherBrownDiff, w, h, 3, 2).data : null;
-    const leatherNor = photoAssets.leatherBrownNor ? sampleTiledImageData(photoAssets.leatherBrownNor, w, h, 3, 2) : null;
-    const leatherRough = photoAssets.leatherBrownRough ? sampleTiledImageData(photoAssets.leatherBrownRough, w, h, 3, 2) : null;
+    const bDiffSrc = photoAssets.bballLeatherDiff || photoAssets.leatherBrownDiff;
+    const bNorSrc = photoAssets.bballLeatherNor || photoAssets.leatherBrownNor;
+    const bRoughSrc = photoAssets.bballLeatherRough || photoAssets.leatherBrownRough;
+    const leatherDiff = bDiffSrc ? sampleTiledImageData(bDiffSrc, w, h, 4, 2).data : null;
+    const leatherNor = bNorSrc ? sampleTiledImageData(bNorSrc, w, h, 4, 2) : null;
+    const leatherRough = bRoughSrc ? sampleTiledImageData(bRoughSrc, w, h, 4, 2) : null;
 
     let leatherMean = 81;
     if (leatherDiff) {
@@ -1173,11 +1250,14 @@
 
     const height = new Float32Array(w * h);
     const rough = new Float32Array(w * h);
+    const seamMask = new Float32Array(w * h);
+    const data = dImg.data;
 
     for (let y = 0; y < h; y += 1) {
       const lat = (0.5 - y / h) * Math.PI;
       const cosLat = Math.max(0.18, Math.cos(lat));
       const ny = Math.sin(lat);
+      const rowOff = y * w;
 
       for (let x = 0; x < w; x += 1) {
         const lon = (x / w - 0.5) * Math.PI * 2;
@@ -1189,46 +1269,49 @@
         const dSide = Math.abs(ny) < 0.9 ? Math.abs(Math.abs(nx) - (0.58 - 0.25 * ny * ny)) : 99;
         const channelDist = Math.min(dEq, dMer, dSide);
 
-        const pIdx = y * w + x;
+        const pIdx = rowOff + x;
         const idx = pIdx * 4;
 
-        const cellLon = ((lon * cosLat * 56) % 1 + 1) % 1 - 0.5;
-        const cellLat = ((lat * 56) % 1 + 1) % 1 - 0.5;
+        // Staggered hexagonal-packed 86-cell NBA full-grain pebbled leather dimples
+        const latCell = lat * 86;
+        const rowParity = Math.floor(latCell) & 1;
+        const cellLon = ((lon * cosLat * 86 + rowParity * 0.5) % 1 + 1) % 1 - 0.5;
+        const cellLat = ((latCell) % 1 + 1) % 1 - 0.5;
         const pebbleR = Math.hypot(cellLon, cellLat);
-        const pebbleDome = pebbleR < 0.43 ? Math.sqrt(Math.max(0, 1 - (pebbleR / 0.43) * (pebbleR / 0.43))) : 0;
+        const pebbleDome = pebbleR < 0.44 ? Math.sqrt(Math.max(0, 1 - (pebbleR / 0.44) * (pebbleR / 0.44))) : 0;
 
-        if (channelDist < 0.036) {
-          const chGrain = Math.round((Math.random() - 0.5) * 4);
-          dImg.data[idx] = Math.max(0, 14 + chGrain);
-          dImg.data[idx + 1] = Math.max(0, 13 + chGrain);
-          dImg.data[idx + 2] = Math.max(0, 13 + chGrain);
-          dImg.data[idx + 3] = 255;
+        if (channelDist < 0.025) {
+          const chGrain = Math.round((Math.random() - 0.5) * 3);
+          data[idx] = Math.max(0, 18 + chGrain);
+          data[idx + 1] = Math.max(0, 18 + chGrain);
+          data[idx + 2] = Math.max(0, 20 + chGrain);
+          data[idx + 3] = 255;
           height[pIdx] = 0.03;
-          rough[pIdx] = 0.86;
-        } else if (channelDist < 0.056) {
-          const bevel = (channelDist - 0.036) / 0.020;
-          dImg.data[idx] = Math.round(52 + bevel * 52);
-          dImg.data[idx + 1] = Math.round(17 + bevel * 19);
-          dImg.data[idx + 2] = Math.round(5 + bevel * 5);
-          dImg.data[idx + 3] = 255;
-          height[pIdx] = 0.24 + bevel * 0.18 + pebbleDome * 0.12;
           rough[pIdx] = 0.82;
+        } else if (channelDist < 0.043) {
+          const bevel = (channelDist - 0.025) / 0.018;
+          const shoulder = Math.sin(bevel * Math.PI) * 0.08;
+          data[idx] = Math.round(116 + bevel * 98);
+          data[idx + 1] = Math.round(48 + bevel * 48);
+          data[idx + 2] = Math.round(16 + bevel * 14);
+          data[idx + 3] = 255;
+          height[pIdx] = 0.24 + bevel * 0.22 + shoulder + pebbleDome * 0.14;
+          rough[pIdx] = 0.72 - bevel * 0.12;
         } else {
-          const photoShift = leatherDiff ? (leatherDiff[idx] - leatherMean) * 0.42 : 0;
-          const hidePatina = Math.sin(nx * 14 + ny * 11) * Math.cos(nz * 13 - nx * 9) * 7;
-          const grain = (Math.random() - 0.5) * 7;
-          // Deep micro-AO in inter-pebble valleys (0.48) rising to rich burnt saddle-leather crowns (1.0)
-          const pebbleAO = 0.48 + 0.52 * Math.pow(pebbleDome, 0.75);
-          const baseR = 152 * pebbleAO + photoShift * 0.85 + hidePatina + grain;
-          const baseG = 54 * pebbleAO + photoShift * 0.36 + hidePatina * 0.42 + grain * 0.45;
-          const baseB = 14 * pebbleAO + photoShift * 0.14 + grain * 0.2;
-          dImg.data[idx] = Math.min(255, Math.max(0, Math.round(baseR)));
-          dImg.data[idx + 1] = Math.min(255, Math.max(0, Math.round(baseG)));
-          dImg.data[idx + 2] = Math.min(255, Math.max(0, Math.round(baseB)));
-          dImg.data[idx + 3] = 255;
-          height[pIdx] = 0.36 + pebbleDome * 0.64;
-          // Satin worn leather pebble crowns (0.56) vs deeply matte crevices (0.90)
-          rough[pIdx] = 0.90 - pebbleDome * 0.34;
+          const photoShift = leatherDiff ? (leatherDiff[idx] - leatherMean) * 0.28 : 0;
+          const grain = (Math.random() - 0.5) * 4;
+          // Pristine official NBA full-grain burnt-orange leather with clean subtle pebble micro-relief
+          const pebbleAO = 0.82 + 0.18 * Math.pow(pebbleDome, 0.72);
+          const baseR = 224 * pebbleAO + photoShift * 0.95 + grain;
+          const baseG = 102 * pebbleAO + photoShift * 0.44 + grain * 0.45;
+          const baseB = 34 * pebbleAO + photoShift * 0.18 + grain * 0.2;
+          data[idx] = Math.min(255, Math.max(0, Math.round(baseR)));
+          data[idx + 1] = Math.min(255, Math.max(0, Math.round(baseG)));
+          data[idx + 2] = Math.min(255, Math.max(0, Math.round(baseB)));
+          data[idx + 3] = 255;
+          height[pIdx] = 0.34 + pebbleDome * 0.66;
+          // Lustrous satin full-grain leather pebble crowns (0.38) vs soft matte valleys (0.68)
+          rough[pIdx] = 0.68 - pebbleDome * 0.30;
         }
       }
     }
@@ -1236,21 +1319,21 @@
     dCtx.putImageData(dImg, 0, 0);
     return {
       map: toSRGBTexture(diffC),
-      normalMap: buildNormalTextureFromHeight(height, w, h, 4.4, true, leatherNor, 0.48),
-      roughnessMap: buildRoughnessTextureFromArray(rough, w, h, true, leatherRough, 0.25)
+      normalMap: buildNormalTextureFromHeight(height, w, h, 3.4, true, leatherNor, 0.48),
+      roughnessMap: buildRoughnessTextureFromArray(rough, w, h, true, leatherRough, 0.24)
     };
   }
 
   function buildSoccerBallMaps() {
-    const w = 768;
-    const h = 384;
+    const w = 1024;
+    const h = 512;
     const diffC = makeCanvas(w, h);
     const dCtx = diffC.getContext('2d');
     const dImg = dCtx.createImageData(w, h);
 
-    const leatherDiff = photoAssets.leatherWhiteDiff ? sampleTiledImageData(photoAssets.leatherWhiteDiff, w, h, 3, 2).data : null;
-    const leatherNor = photoAssets.leatherWhiteNor ? sampleTiledImageData(photoAssets.leatherWhiteNor, w, h, 3, 2) : null;
-    const leatherRough = photoAssets.leatherWhiteRough ? sampleTiledImageData(photoAssets.leatherWhiteRough, w, h, 3, 2) : null;
+    const leatherDiff = photoAssets.leatherWhiteDiff ? sampleTiledImageData(photoAssets.leatherWhiteDiff, w, h, 4, 2).data : null;
+    const leatherNor = photoAssets.leatherWhiteNor ? sampleTiledImageData(photoAssets.leatherWhiteNor, w, h, 4, 2) : null;
+    const leatherRough = photoAssets.leatherWhiteRough ? sampleTiledImageData(photoAssets.leatherWhiteRough, w, h, 4, 2) : null;
 
     let leatherWhiteMean = 150;
     if (leatherDiff) {
@@ -1264,6 +1347,8 @@
 
     const height = new Float32Array(w * h);
     const rough = new Float32Array(w * h);
+    const seamMask = new Float32Array(w * h);
+    const data = dImg.data;
 
     const phi = (1 + Math.sqrt(5)) * 0.5;
     const rawV = [
@@ -1271,34 +1356,48 @@
       [1, phi, 0], [-1, phi, 0], [1, -phi, 0], [-1, -phi, 0],
       [phi, 0, 1], [-phi, 0, 1], [phi, 0, -1], [-phi, 0, -1]
     ];
-    const verts = rawV.map(function (v) {
-      const len = Math.hypot(v[0], v[1], v[2]);
-      return [v[0] / len, v[1] / len, v[2] / len];
-    });
+    const vx = new Float32Array(12);
+    const vy = new Float32Array(12);
+    const vz = new Float32Array(12);
+    for (let i = 0; i < 12; i += 1) {
+      const len = Math.hypot(rawV[i][0], rawV[i][1], rawV[i][2]);
+      vx[i] = rawV[i][0] / len;
+      vy[i] = rawV[i][1] / len;
+      vz[i] = rawV[i][2] / len;
+    }
 
-    const faces = [];
+    const fxArr = [];
+    const fyArr = [];
+    const fzArr = [];
     for (let i = 0; i < 12; i += 1) {
       for (let j = i + 1; j < 12; j += 1) {
-        const dotIJ = verts[i][0] * verts[j][0] + verts[i][1] * verts[j][1] + verts[i][2] * verts[j][2];
+        const dotIJ = vx[i] * vx[j] + vy[i] * vy[j] + vz[i] * vz[j];
         if (dotIJ < 0.35) continue;
         for (let k = j + 1; k < 12; k += 1) {
-          const dotIK = verts[i][0] * verts[k][0] + verts[i][1] * verts[k][1] + verts[i][2] * verts[k][2];
-          const dotJK = verts[j][0] * verts[k][0] + verts[j][1] * verts[k][1] + verts[j][2] * verts[k][2];
+          const dotIK = vx[i] * vx[k] + vy[i] * vy[k] + vz[i] * vz[k];
+          const dotJK = vx[j] * vx[k] + vy[j] * vy[k] + vz[j] * vz[k];
           if (dotIK > 0.35 && dotJK > 0.35) {
-            const fx = verts[i][0] + verts[j][0] + verts[k][0];
-            const fy = verts[i][1] + verts[j][1] + verts[k][1];
-            const fz = verts[i][2] + verts[j][2] + verts[k][2];
-            const fl = Math.hypot(fx, fy, fz);
-            faces.push([fx / fl, fy / fl, fz / fl]);
+            const sx = vx[i] + vx[j] + vx[k];
+            const sy = vy[i] + vy[j] + vy[k];
+            const sz = vz[i] + vz[j] + vz[k];
+            const fl = Math.hypot(sx, sy, sz);
+            fxArr.push(sx / fl);
+            fyArr.push(sy / fl);
+            fzArr.push(sz / fl);
           }
         }
       }
     }
+    const faceCount = fxArr.length;
+    const fx = Float32Array.from(fxArr);
+    const fy = Float32Array.from(fyArr);
+    const fz = Float32Array.from(fzArr);
 
     for (let y = 0; y < h; y += 1) {
       const lat = (0.5 - y / h) * Math.PI;
       const cosLat = Math.max(0.08, Math.cos(lat));
       const ny = Math.sin(lat);
+      const rowOff = y * w;
 
       for (let x = 0; x < w; x += 1) {
         const lon = (x / w - 0.5) * Math.PI * 2;
@@ -1306,15 +1405,15 @@
         const nz = cosLat * Math.sin(lon);
 
         let bestV = -1;
-        for (let i = 0; i < verts.length; i += 1) {
-          const d = nx * verts[i][0] + ny * verts[i][1] + nz * verts[i][2];
+        for (let i = 0; i < 12; i += 1) {
+          const d = nx * vx[i] + ny * vy[i] + nz * vz[i];
           if (d > bestV) bestV = d;
         }
 
         let bestF = -1;
         let secondF = -1;
-        for (let i = 0; i < faces.length; i += 1) {
-          const d = nx * faces[i][0] + ny * faces[i][1] + nz * faces[i][2];
+        for (let i = 0; i < faceCount; i += 1) {
+          const d = nx * fx[i] + ny * fy[i] + nz * fz[i];
           if (d > bestF) {
             secondF = bestF;
             bestF = d;
@@ -1327,48 +1426,53 @@
         const hexEdgeGap = bestF - secondF;
         const isPentagon = pentGap > 0;
         const edgeDist = isPentagon ? Math.abs(pentGap) : Math.min(Math.abs(pentGap), hexEdgeGap);
-        const isSeam = edgeDist < 0.013;
+        const isSeam = edgeDist < 0.011;
 
-        const pIdx = y * w + x;
+        const pIdx = rowOff + x;
         const idx = pIdx * 4;
-        const photoShift = leatherDiff ? (leatherDiff[idx] - leatherWhiteMean) * 0.42 : 0;
+        const rawShift = leatherDiff ? (leatherDiff[idx] - leatherWhiteMean) * 0.14 : 0;
+        const photoShift = Math.max(-10, Math.min(10, rawShift));
         const cushion = Math.min(1.0, edgeDist / 0.068);
         const pillow = Math.pow(cushion, 0.50);
-        const panelAO = 0.56 + 0.44 * pillow;
-        const microGrain = (Math.random() - 0.5) * 6;
+        const microGrain = (Math.random() - 0.5) * 4;
+
+        // Delicate recessed precision panel seam contour
+        const puckerMask = edgeDist < 0.044 ? (1.0 - edgeDist / 0.044) : 0.0;
+        const pucker = puckerMask > 0 ? Math.sin((nx * 165 - ny * 145 + nz * 155)) * 0.022 * puckerMask : 0.0;
 
         // Pro match-ball micro-dimple surface cell
-        const dimpLon = ((lon * cosLat * 76) % 1 + 1) % 1 - 0.5;
-        const dimpLat = ((lat * 76) % 1 + 1) % 1 - 0.5;
+        const dimpLon = ((lon * cosLat * 84) % 1 + 1) % 1 - 0.5;
+        const dimpLat = ((lat * 84) % 1 + 1) % 1 - 0.5;
         const dimpD = Math.hypot(dimpLon, dimpLat);
-        const dimple = dimpD < 0.34 ? -0.055 * (1 - dimpD / 0.34) : 0.015;
+        const dimple = dimpD < 0.34 ? -0.045 * (1 - dimpD / 0.34) : 0.012;
 
         if (isSeam) {
-          const stitch = Math.sin((nx + ny + nz) * 210) > 0.25;
-          dImg.data[idx] = stitch ? 46 : 12;
-          dImg.data[idx + 1] = stitch ? 44 : 12;
-          dImg.data[idx + 2] = stitch ? 40 : 14;
-          dImg.data[idx + 3] = 255;
+          const stitch = Math.sin((nx + ny + nz) * 230) > 0.28;
+          data[idx] = stitch ? 104 : 16;
+          data[idx + 1] = stitch ? 108 : 18;
+          data[idx + 2] = stitch ? 114 : 22;
+          data[idx + 3] = 255;
           height[pIdx] = stitch ? 0.24 : 0.05;
-          rough[pIdx] = 0.94;
+          rough[pIdx] = 0.78;
         } else if (isPentagon) {
-          const pentAO = 0.64 + 0.36 * pillow;
-          const base = Math.max(8, Math.round((24 + photoShift * 0.24 + dimple * 16 + microGrain * 0.5) * pentAO));
-          dImg.data[idx] = base;
-          dImg.data[idx + 1] = base + 1;
-          dImg.data[idx + 2] = base + 3;
-          dImg.data[idx + 3] = 255;
-          height[pIdx] = 0.26 + pillow * 0.70 + dimple;
-          rough[pIdx] = Math.min(0.92, 0.50 + (1.0 - pillow) * 0.24 - dimple * 0.8);
+          const pentAO = 0.78 + 0.22 * pillow;
+          const base = Math.max(16, Math.round((24 + photoShift * 0.2 + dimple * 10 + microGrain * 0.5) * pentAO));
+          data[idx] = base;
+          data[idx + 1] = base + 2;
+          data[idx + 2] = base + 8;
+          data[idx + 3] = 255;
+          height[pIdx] = 0.24 + pillow * 0.72 + dimple + pucker;
+          rough[pIdx] = Math.min(0.85, 0.30 + (1.0 - pillow) * 0.18 - dimple * 0.5);
         } else {
-          const rawTone = (186 + photoShift * 0.55 + dimple * 28 + microGrain) * panelAO;
-          const base = Math.min(212, Math.max(76, Math.round(rawTone)));
-          dImg.data[idx] = base;
-          dImg.data[idx + 1] = Math.max(72, base - 4);
-          dImg.data[idx + 2] = Math.max(66, base - 13);
-          dImg.data[idx + 3] = 255;
-          height[pIdx] = 0.26 + pillow * 0.70 + dimple;
-          rough[pIdx] = Math.min(0.90, 0.46 + (1.0 - pillow) * 0.24 - dimple * 0.8);
+          const hexAO = 0.80 + 0.20 * pillow;
+          const rawTone = (244 + photoShift + dimple * 16 + microGrain * 0.5) * hexAO;
+          const base = Math.min(250, Math.max(188, Math.round(rawTone)));
+          data[idx] = base;
+          data[idx + 1] = Math.min(252, base + 1);
+          data[idx + 2] = Math.min(255, base + 3);
+          data[idx + 3] = 255;
+          height[pIdx] = 0.24 + pillow * 0.72 + dimple + pucker;
+          rough[pIdx] = Math.min(0.85, 0.26 + (1.0 - pillow) * 0.18 - dimple * 0.5);
         }
       }
     }
@@ -1376,8 +1480,8 @@
     dCtx.putImageData(dImg, 0, 0);
     return {
       map: toSRGBTexture(diffC),
-      normalMap: buildNormalTextureFromHeight(height, w, h, 4.0, true, leatherNor, 0.46),
-      roughnessMap: buildRoughnessTextureFromArray(rough, w, h, true, leatherRough, 0.26)
+      normalMap: buildNormalTextureFromHeight(height, w, h, 3.4, true, leatherNor, 0.30),
+      roughnessMap: buildRoughnessTextureFromArray(rough, w, h, true, leatherRough, 0.18)
     };
   }
 
@@ -1387,30 +1491,24 @@
     const diffC = makeCanvas(w, h);
     const dCtx = diffC.getContext('2d');
 
-    const metalNor = photoAssets.metalNor ? sampleTiledImageData(photoAssets.metalNor, w, h, 2, 1) : null;
-    const metalRough = photoAssets.metalRough ? sampleTiledImageData(photoAssets.metalRough, w, h, 2, 1) : null;
+    const gNor = photoAssets.metalNor;
+    const gRough = photoAssets.metalRough;
+    const metalNor = gNor ? sampleTiledImageData(gNor, w, h, 2, 1) : null;
+    const metalRough = gRough ? sampleTiledImageData(gRough, w, h, 2, 1) : null;
 
     const stampC = makeCanvas(w, h);
     const sCtx = stampC.getContext('2d');
 
     const grad = dCtx.createLinearGradient(0, 0, w, h);
-    grad.addColorStop(0, '#FFE888');
-    grad.addColorStop(0.45, '#F2B830');
-    grad.addColorStop(1, '#CE8B15');
+    grad.addColorStop(0, '#FFF2B8');
+    grad.addColorStop(0.45, '#FFE27E');
+    grad.addColorStop(1, '#F4C550');
     dCtx.fillStyle = grad;
     dCtx.fillRect(0, 0, w, h);
 
-    if (photoAssets.metalDiff) {
-      dCtx.save();
-      dCtx.globalAlpha = 0.32;
-      dCtx.globalCompositeOperation = 'soft-light';
-      drawTiledImage(dCtx, photoAssets.metalDiff, w, h, 2, 1);
-      dCtx.restore();
-    } else {
-      for (let i = 0; i < 2400; i += 1) {
-        dCtx.fillStyle = i % 2 === 0 ? 'rgba(255, 252, 224, 0.065)' : 'rgba(110, 62, 4, 0.05)';
-        dCtx.fillRect(Math.random() * w * 0.35, Math.random() * h, w * 0.65, 1);
-      }
+    for (let i = 0; i < 1800; i += 1) {
+      dCtx.fillStyle = i % 2 === 0 ? 'rgba(255, 253, 238, 0.055)' : 'rgba(218, 162, 46, 0.045)';
+      dCtx.fillRect(Math.random() * w * 0.35, Math.random() * h, w * 0.65, 1);
     }
 
     sCtx.fillStyle = '#FFFFFF';
@@ -1441,8 +1539,8 @@
     sCtx.fillText('A 048291 · MELTER', w * 0.5, h * 0.855);
 
     dCtx.save();
-    dCtx.globalAlpha = 0.64;
-    dCtx.strokeStyle = 'rgba(58, 28, 2, 1)';
+    dCtx.globalAlpha = 0.50;
+    dCtx.strokeStyle = 'rgba(148, 96, 20, 1)';
     dCtx.lineWidth = 14;
     dCtx.strokeRect(72, 52, w - 144, h - 104);
     dCtx.lineWidth = 6;
@@ -1451,7 +1549,7 @@
     dCtx.strokeRect(132, 108, 128, 72);
 
     // Subtle specular bevel catchline on upper-left rim of inner stamped frame
-    dCtx.strokeStyle = 'rgba(255, 244, 188, 0.55)';
+    dCtx.strokeStyle = 'rgba(255, 252, 230, 0.78)';
     dCtx.lineWidth = 2.5;
     dCtx.beginPath();
     dCtx.moveTo(98, h - 78);
@@ -1459,7 +1557,7 @@
     dCtx.lineTo(w - 98, 78);
     dCtx.stroke();
 
-    dCtx.fillStyle = 'rgba(54, 26, 2, 1)';
+    dCtx.fillStyle = 'rgba(148, 96, 20, 1)';
     dCtx.textAlign = 'center';
     dCtx.font = 'bold 28px Georgia, serif';
     dCtx.fillText('ASSAY', 196, 152);
@@ -1476,34 +1574,62 @@
     const sData = sCtx.getImageData(0, 0, w, h).data;
     const height = new Float32Array(w * h);
     const rough = new Float32Array(w * h);
+    const seamMask = new Float32Array(w * h);
 
+    // 3x3 smooth die-struck chamfer kernel prevents jagged 1px normal aliasing on engraved lettering
     for (let y = 0; y < h; y += 1) {
-      const brushLine = (Math.random() - 0.5) * 0.025 + Math.sin(y * 0.42) * 0.012;
+      const yPrev = y > 0 ? y - 1 : 0;
+      const yNext = y < h - 1 ? y + 1 : h - 1;
+      const brushLine = (Math.random() - 0.5) * 0.022 + Math.sin(y * 0.42) * 0.011;
       const v = y / h;
+      const dv = (v - 0.5) * 2.0;
       const inYBorder = v < 0.095 || v > 0.905;
+      const rowOff = y * w;
+
       for (let x = 0; x < w; x += 1) {
+        const xPrev = x > 0 ? x - 1 : 0;
+        const xNext = x < w - 1 ? x + 1 : w - 1;
         const u = x / w;
+        const du = (u - 0.5) * 2.0;
         const inBorder = inYBorder || u < 0.068 || u > 0.932;
-        const pIdx = y * w + x;
-        const stampVal = sData[pIdx * 4] / 255;
-        height[pIdx] = 0.28 + stampVal * 0.56 + brushLine;
+        const pIdx = rowOff + x;
+
+        const c0 = sData[pIdx * 4];
+        const stampSmooth =
+          (c0 * 4 +
+            sData[(rowOff + xPrev) * 4] +
+            sData[(rowOff + xNext) * 4] +
+            sData[(yPrev * w + x) * 4] +
+            sData[(yNext * w + x) * 4] +
+            (sData[(yPrev * w + xPrev) * 4] +
+              sData[(yPrev * w + xNext) * 4] +
+              sData[(yNext * w + xPrev) * 4] +
+              sData[(yNext * w + xNext) * 4]) *
+              0.5) /
+          2550;
+
+        // Subtle molten cast-gold cooling flow ripples near face perimeter
+        const rEllip = Math.hypot(du * 0.92, dv * 1.15);
+        const pourWave = Math.sin(rEllip * 22.0 + Math.sin(du * 5.0) * 0.8) * 0.014 * Math.min(1.0, rEllip);
+
+        height[pIdx] = 0.26 + stampSmooth * 0.58 + brushLine + pourWave;
         if (inBorder) {
-          // Mirror-lapped outer gold chamfer & bevels
-          rough[pIdx] = 0.065 + Math.abs(brushLine) * 0.5;
-        } else if (stampVal < 0.7) {
-          // Matte frosted engraved crevices
-          rough[pIdx] = 0.46;
+          // Pristine mirror-chamfered 24K Swiss bullion bevels
+          rough[pIdx] = 0.08 + Math.abs(brushLine) * 0.45;
+        } else if (stampSmooth < 0.72) {
+          // Crisp frosted gold die-struck engraving crevices [0.32..0.42]
+          rough[pIdx] = 0.42 - stampSmooth * 0.10;
         } else {
-          // Satin micro-brushed ingot face
-          rough[pIdx] = 0.155 + Math.abs(brushLine) * 0.95;
+          // Silky brushed mint 24K bullion face [0.14..0.19]
+          rough[pIdx] = 0.14 + Math.abs(brushLine) * 0.75 + Math.abs(pourWave) * 0.5;
         }
       }
     }
 
     return {
       map: toSRGBTexture(diffC),
-      normalMap: buildNormalTextureFromHeight(height, w, h, 3.0, false, metalNor, 0.35),
-      roughnessMap: buildRoughnessTextureFromArray(rough, w, h, false, metalRough, 0.18),
+      normalMap: buildNormalTextureFromHeight(height, w, h, 2.1, false, metalNor, 0.28),
+      roughnessMap: buildRoughnessTextureFromArray(rough, w, h, false, metalRough, 0.16),
       anisotropyMap: buildBrushedAnisotropyMap(w, h, sData, 0.94, 0.06)
     };
   }
@@ -1896,12 +2022,14 @@
   let hardwareMapsCache = null;
   let floorCache = {};
   let objectCache = {};
+  let photoModelsPromise = null;
 
   ns.WATCH_THEMES = WATCH_THEMES;
   ns.THEME_ORDER = THEME_ORDER;
   ns.VELVET_PRESETS = VELVET_PRESETS;
   ns.SoundFX = SoundFX;
   ns.PreviewIcons = buildPreviewIcons();
+  ns.photoModels = {};
 
   ns.getVelvetPreset = function () {
     return currentVelvetPresetId;
@@ -1927,6 +2055,18 @@
     return hdriCache.procedural;
   };
 
+  ns.getStudioEquirectMap = function (presetId) {
+    const cached = hdriCache[presetId];
+    if (cached && cached.userData && cached.userData.equirectTex) {
+      return cached.userData.equirectTex;
+    }
+    const proc = hdriCache.procedural;
+    if (proc && proc.userData && proc.userData.equirectTex) {
+      return proc.userData.equirectTex;
+    }
+    return null;
+  };
+
   ns.loadStudioHDRI = function (renderer, presetId, onReady) {
     const id = HDRI_FILES[presetId] ? presetId : 'procedural';
     if (hdriCache[id]) {
@@ -1947,11 +2087,18 @@
       HDRI_FILES[id],
       function (hdrTex) {
         try {
+          hdrTex.wrapS = THREE.RepeatWrapping;
+          hdrTex.wrapT = THREE.ClampToEdgeWrapping;
+          hdrTex.minFilter = THREE.LinearFilter;
+          hdrTex.magFilter = THREE.LinearFilter;
+          hdrTex.needsUpdate = true;
+
           const pmrem = new THREE.PMREMGenerator(renderer);
           pmrem.compileEquirectangularShader();
           const rt = pmrem.fromEquirectangular(hdrTex);
-          hdrTex.dispose();
           pmrem.dispose();
+          rt.texture.userData = rt.texture.userData || {};
+          rt.texture.userData.equirectTex = hdrTex;
           hdriCache[id] = rt.texture;
           if (onReady) onReady(rt.texture);
         } catch (_err) {
@@ -1963,6 +2110,101 @@
         if (onReady) onReady(ns.getStudioEnvMap(renderer));
       }
     );
+  };
+
+  ns.loadPhotogrammetryModels = function (onReady) {
+    if (ns.photoModels.soccer) {
+      if (onReady) onReady(ns.photoModels);
+      return Promise.resolve(ns.photoModels);
+    }
+    if (photoModelsPromise) {
+      return photoModelsPromise.then(function (models) {
+        if (onReady) onReady(models);
+        return models;
+      });
+    }
+    const GLTFLoaderClass = global.THREE_ADDONS && global.THREE_ADDONS.GLTFLoader;
+    if (!GLTFLoaderClass || global.location.protocol === 'file:') {
+      return Promise.resolve(ns.photoModels);
+    }
+
+    photoModelsPromise = new Promise(function (resolve) {
+      const loader = new GLTFLoaderClass();
+      loader.load(
+        'assets/models/football/football_1k.gltf',
+        function (gltf) {
+          try {
+            let targetMesh = null;
+            gltf.scene.traverse(function (obj) {
+              if (!obj.isMesh) return;
+              if (obj.name === 'Football_01_inflated' || (obj.parent && obj.parent.name === 'football_inflated')) {
+                targetMesh = obj;
+              }
+            });
+            if (!targetMesh) {
+              const allMeshes = [];
+              gltf.scene.traverse(function (obj) {
+                if (obj.isMesh) allMeshes.push(obj);
+              });
+              targetMesh = allMeshes[1] || allMeshes[0] || null;
+            }
+            if (targetMesh && targetMesh.geometry) {
+              const geom = targetMesh.geometry.clone();
+              geom.computeBoundingBox();
+              geom.computeBoundingSphere();
+              if (geom.boundingBox) {
+                const center = new THREE.Vector3();
+                geom.boundingBox.getCenter(center);
+                geom.translate(-center.x, -center.y, -center.z);
+              }
+              geom.computeBoundingSphere();
+              const radius = (geom.boundingSphere && geom.boundingSphere.radius) || 0.11;
+              const scale = radius > 0.0001 ? 1.0 / radius : 9.0;
+              geom.scale(scale, scale, scale);
+              geom.computeBoundingBox();
+              geom.computeBoundingSphere();
+
+              const srcMat = targetMesh.material;
+              const mat = srcMat && typeof srcMat.clone === 'function'
+                ? srcMat.clone()
+                : new THREE.MeshStandardMaterial();
+              mat.roughness = 1.0;
+              mat.metalness = 0.0;
+              mat.envMapIntensity = 0.42;
+              if (mat.normalScale && typeof mat.normalScale.set === 'function') {
+                mat.normalScale.set(1.25, 1.25);
+              }
+              if (mat.map) mat.map.anisotropy = 4;
+              if (mat.normalMap) mat.normalMap.anisotropy = 4;
+              if (mat.roughnessMap) {
+                mat.roughnessMap.anisotropy = 4;
+                mat.aoMap = mat.roughnessMap;
+                mat.aoMapIntensity = 0.85;
+                if ('channel' in mat.aoMap) {
+                  mat.aoMap.channel = 0;
+                }
+              }
+              mat.needsUpdate = true;
+
+              ns.photoModels.soccer = {
+                geometry: geom,
+                material: mat
+              };
+            }
+          } catch (err) {
+            console.warn('[textures3d] Failed preparing CC0 football glTF:', err);
+          }
+          if (onReady) onReady(ns.photoModels);
+          resolve(ns.photoModels);
+        },
+        undefined,
+        function (err) {
+          console.warn('[textures3d] Failed loading CC0 football glTF:', err);
+          resolve(ns.photoModels);
+        }
+      );
+    });
+    return photoModelsPromise;
   };
 
   ns.loadPhotographicMaps = function (onUpdated) {
@@ -2006,8 +2248,18 @@
       metalDiff: 'assets/textures/metal_clean/diff.jpg',
       metalNor: 'assets/textures/metal_clean/nor_gl.jpg',
       metalRough: 'assets/textures/metal_clean/rough.jpg',
+      rubberDiff: 'assets/textures/rubber/diff.jpg',
       rubberNor: 'assets/textures/rubber/nor_gl.jpg',
-      rubberRough: 'assets/textures/rubber/rough.jpg'
+      rubberRough: 'assets/textures/rubber/rough.jpg',
+      marbleDiff: 'assets/textures/black_marble/diff.jpg',
+      marbleNor: 'assets/textures/black_marble/nor_gl.jpg',
+      marbleRough: 'assets/textures/black_marble/rough.jpg',
+      mapleDiff: 'assets/textures/maple_court/diff.jpg',
+      mapleNor: 'assets/textures/maple_court/nor_gl.jpg',
+      mapleRough: 'assets/textures/maple_court/rough.jpg',
+      bballLeatherDiff: 'assets/textures/basketball_leather/diff.jpg',
+      bballLeatherNor: 'assets/textures/basketball_leather/nor_gl.jpg',
+      bballLeatherRough: 'assets/textures/basketball_leather/rough.jpg'
     };
 
     const keys = Object.keys(manifest);
@@ -2078,5 +2330,11 @@
     else if (themeId === 'goldBar') objectCache[themeId] = buildGoldIngotMaps();
     else objectCache[themeId] = null;
     return objectCache[themeId];
+  };
+
+  ns.prewarmThemeAssets = function (themeId) {
+    if (!WATCH_THEMES[themeId]) return;
+    ns.getFloorMaps(themeId);
+    ns.getObjectMaps(themeId);
   };
 })(window);

@@ -1,13 +1,22 @@
 import * as THREE_NS from 'three';
 import { HDRLoader } from 'three/addons/loaders/HDRLoader.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-import * as RAPIER_NS from './vendor/rapier.es.js?v=20261121_studio_v5';
+import { N8AOPass } from 'n8ao';
+import {
+  MeshBVH,
+  MeshBVHUniformStruct,
+  SAH,
+  shaderStructs,
+  shaderIntersectFunction
+} from 'three-mesh-bvh';
+import * as RAPIER_NS from './vendor/rapier.es.js?v=20261121_pristine_v16';
 
-const ASSET_VER = '20261121_studio_v5';
+const ASSET_VER = '20261121_pristine_v16';
 
-// Expose mutable Three r187 namespace + postprocessing addons for classic UI modules
+// Expose mutable Three r187 namespace + postprocessing/photoreal addons for classic UI modules
 const mutableThree = Object.assign({}, THREE_NS);
 mutableThree.HDRLoader = HDRLoader;
 mutableThree.RGBELoader = HDRLoader;
@@ -16,7 +25,16 @@ window.THREE_ADDONS = {
   EffectComposer,
   RenderPass,
   UnrealBloomPass,
-  HDRLoader
+  HDRLoader,
+  GLTFLoader,
+  N8AOPass,
+  BVH: {
+    MeshBVH,
+    MeshBVHUniformStruct,
+    SAH,
+    shaderStructs,
+    shaderIntersectFunction
+  }
 };
 
 function loadClassicScript(src) {

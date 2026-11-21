@@ -7,29 +7,21 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:wght@500;600;700&family=Caveat:wght@600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=20261121_studio_v4">
+  <link rel="stylesheet" href="styles.css?v=20261121_pristine_v16">
   <script type="importmap">
   {
     "imports": {
       "three": "./vendor/three.module.js",
-      "three/addons/": "./vendor/jsm/"
+      "three/addons/": "./vendor/jsm/",
+      "three/examples/jsm/": "./vendor/jsm/",
+      "postprocessing": "./vendor/postprocessing-stub.js",
+      "n8ao": "./vendor/n8ao.module.js",
+      "three-mesh-bvh": "./vendor/three-mesh-bvh.module.js"
     }
   }
   </script>
 </head>
 <body data-case="series10">
-  <!-- SVG crinkled paper turbulence filter for organic desk & poster tactility -->
-  <svg class="svg-defs" aria-hidden="true" width="0" height="0">
-    <defs>
-      <filter id="paper-crinkle" x="0%" y="0%" width="100%" height="100%">
-        <feTurbulence type="fractalNoise" baseFrequency="0.018" numOctaves="4" seed="7" result="noise" />
-        <feDiffuseLighting in="noise" lighting-color="#ffffff" surfaceScale="2.2" result="light">
-          <feDistantLight azimuth="48" elevation="58" />
-        </feDiffuseLighting>
-      </filter>
-    </defs>
-  </svg>
-
   <main class="desk-stage" id="deskStage">
     <div class="desk-paper-texture" aria-hidden="true"></div>
 
@@ -247,8 +239,26 @@
         <div class="tweak-group">
           <label class="tweak-label" for="densityPresetSelect">物体大小与数量预设 (Density)</label>
           <select class="tweak-select" id="densityPresetSelect">
-            <option value="cinematic">原视频大尺寸比例 (~15–19 颗)</option>
-            <option value="dense40">Prompt 40 颗密集模式</option>
+            <option value="lite">轻量极速档 (~8–9 颗)</option>
+            <option value="cinematic" selected>均衡比例档 (~11–13 颗)</option>
+            <option value="dense40">高密丰富档 (~20–28 颗)</option>
+          </select>
+        </div>
+
+        <div class="tweak-group">
+          <div class="tweak-row">
+            <label class="tweak-label" for="bodyCountRange">物体数量 (Object Count)</label>
+            <span class="tweak-val" id="bodyCountVal">13</span>
+          </div>
+          <input class="tweak-range" id="bodyCountRange" type="range" min="6" max="32" step="1" value="13">
+        </div>
+
+        <div class="tweak-group">
+          <label class="tweak-label" for="grassDensitySelect">足球草叶粒子数 (Turf Blades)</label>
+          <select class="tweak-select" id="grassDensitySelect">
+            <option value="lite">轻量流畅 (~5,400 根)</option>
+            <option value="balanced" selected>均衡短密 (~9,200 根)</option>
+            <option value="dense">浓密赛事 (~13,500 根)</option>
           </select>
         </div>
 
@@ -335,9 +345,9 @@
         <div class="tweak-group">
           <div class="tweak-row">
             <label class="tweak-label" for="bloomRange">光学泛光 (HDR Bloom)</label>
-            <span class="tweak-val" id="bloomVal">0.32</span>
+            <span class="tweak-val" id="bloomVal">0.06</span>
           </div>
-          <input class="tweak-range" id="bloomRange" type="range" min="0" max="1.0" step="0.02" value="0.32">
+          <input class="tweak-range" id="bloomRange" type="range" min="0" max="1.0" step="0.02" value="0.06">
         </div>
 
         <div class="tweak-group">
@@ -381,6 +391,16 @@
         </div>
 
         <label class="tweak-check">
+          <input type="checkbox" id="n8aoCheck" checked>
+          <span>实时接触光遮蔽 (N8AO)</span>
+        </label>
+
+        <label class="tweak-check">
+          <input type="checkbox" id="tennisFuzzCheck" checked>
+          <span>网球 3D 壳层绒毛 (Shell Fur)</span>
+        </label>
+
+        <label class="tweak-check">
           <input type="checkbox" id="autoLevelCheck">
           <span>松手自动回正 (Auto-Level)</span>
         </label>
@@ -395,6 +415,10 @@
           <span>纯享录屏模式 (隐藏外围按钮)</span>
         </label>
 
+        <div class="tweak-perf-strip" id="perfStatsText" aria-live="off">
+          -- FPS · 13 物体
+        </div>
+
         <button type="button" class="tweak-reset-btn" id="resetDefaultsBtn">
           恢复原视频 3D 默认参数
         </button>
@@ -402,6 +426,6 @@
     </aside>
   </main>
 
-  <script type="module" src="boot.js?v=20261121_studio_v5"></script>
+  <script type="module" src="boot.js?v=20261121_pristine_v16"></script>
 </body>
 </html>

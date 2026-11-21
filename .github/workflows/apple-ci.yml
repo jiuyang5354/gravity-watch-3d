@@ -1,0 +1,66 @@
+name: Apple iOS & watchOS CI Build
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-apple-targets:
+    name: Validate XcodeGen + Build iOS & watchOS
+    runs-on: macos-15
+
+    defaults:
+      run:
+        working-directory: apple
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Inspect Xcode environment
+        run: |
+          xcodebuild -version
+          xcrun simctl list runtimes
+
+      - name: Validate static project consistency
+        run: |
+          python3 scripts/validate_project.py
+
+      - name: Install XcodeGen & generate GravityWatchStudio.xcodeproj
+        run: |
+          brew install xcodegen
+          xcodegen generate
+
+      - name: Build iOS Companion + Embedded watchOS App (iOS Simulator)
+        run: |
+          xcodebuild clean build \
+            -project GravityWatchStudio.xcodeproj \
+            -scheme GravityWatchStudio \
+            -destination "generic/platform=iOS Simulator" \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Build Standalone watchOS App (watchOS Simulator)
+        run: |
+          xcodebuild build \
+            -project GravityWatchStudio.xcodeproj \
+            -scheme GravityWatchFaceWatch \
+            -destination "generic/platform=watchOS Simulator" \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Build watchOS Arm64 + Metal Shaders (Generic watchOS Device)
+        run: |
+          xcodebuild build \
+            -project GravityWatchStudio.xcodeproj \
+            -scheme GravityWatchFaceWatch \
+            -destination "generic/platform=watchOS" \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Upload generated Xcode project artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: GravityWatchStudio-xcodeproj
+          path: apple/GravityWatchStudio.xcodeproj
+          retention-days: 30

@@ -74,14 +74,13 @@ body {
 
 .desk-paper-texture {
   position: absolute;
-  inset: -40px;
+  inset: 0;
   background:
-    linear-gradient(128deg, transparent 34%, rgba(255, 255, 255, 0.03) 34.5%, transparent 35.5%),
+    repeating-linear-gradient(118deg, rgba(255, 255, 255, 0.014) 0 1px, transparent 1px 14px),
+    linear-gradient(128deg, transparent 34%, rgba(255, 255, 255, 0.035) 34.5%, transparent 35.5%),
     linear-gradient(42deg, transparent 58%, rgba(0, 0, 0, 0.16) 58.6%, transparent 60%),
     linear-gradient(164deg, transparent 71%, rgba(255, 255, 255, 0.025) 71.5%, transparent 72.5%);
-  filter: url(#paper-crinkle);
-  opacity: 0.24;
-  mix-blend-mode: overlay;
+  opacity: 0.72;
   pointer-events: none;
 }
 
@@ -150,6 +149,8 @@ body {
     inset 0 1px 0 rgba(255, 255, 255, 0.45);
   overflow: hidden;
   cursor: grab;
+  isolation: isolate;
+  contain: layout style;
 }
 
 .poster-card:active {
@@ -160,12 +161,11 @@ body {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(115deg, transparent 22%, rgba(255, 255, 255, 0.14) 22.4%, transparent 23.4%),
+    repeating-linear-gradient(122deg, rgba(5, 59, 6, 0.018) 0 1px, transparent 1px 11px),
+    linear-gradient(115deg, transparent 22%, rgba(255, 255, 255, 0.16) 22.4%, transparent 23.4%),
     linear-gradient(28deg, transparent 48%, rgba(5, 59, 6, 0.06) 48.5%, transparent 49.5%),
-    linear-gradient(156deg, transparent 74%, rgba(255, 255, 255, 0.12) 74.4%, transparent 75.5%);
-  filter: url(#paper-crinkle);
-  opacity: 0.22;
-  mix-blend-mode: soft-light;
+    linear-gradient(156deg, transparent 74%, rgba(255, 255, 255, 0.13) 74.4%, transparent 75.5%);
+  opacity: 0.78;
   pointer-events: none;
 }
 
@@ -448,6 +448,8 @@ body {
   align-items: center;
   justify-content: center;
   touch-action: none;
+  contain: layout paint style;
+  transform: translateZ(0);
 }
 
 .watch-webgl-canvas {
@@ -990,6 +992,20 @@ body.is-clean-record .desk-footnote {
 
 .tweak-check input {
   accent-color: var(--poster-lime);
+}
+
+.tweak-perf-strip {
+  margin-top: 2px;
+  padding: 6px 9px;
+  border-radius: 7px;
+  background: rgba(178, 255, 0, 0.08);
+  border: 1px solid rgba(178, 255, 0, 0.22);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+  color: rgba(215, 255, 130, 0.92);
+  text-align: center;
 }
 
 .tweak-reset-btn {
