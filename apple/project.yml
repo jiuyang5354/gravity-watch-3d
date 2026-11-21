@@ -68,7 +68,6 @@ schemes:
     build:
       targets:
         GravityWatchStudio: all
-        GravityWatchFaceWatch: all
     run:
       config: Debug
   GravityWatchFaceWatch:

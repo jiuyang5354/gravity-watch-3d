@@ -189,12 +189,14 @@ struct WallpaperExportSheet: View {
         }
     }
 
+    @MainActor
     private func refreshSnapshot() {
         #if os(iOS)
         renderedPreview = WallpaperExporter.renderWallpaper(from: controller.scene, model: selectedModel)
         #endif
     }
 
+    @MainActor
     private func saveWallpaper() async {
         #if os(iOS)
         isSaving = true

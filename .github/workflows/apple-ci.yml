@@ -33,6 +33,7 @@ jobs:
         run: |
           brew install xcodegen
           xcodegen generate
+          xcodebuild -project GravityWatchStudio.xcodeproj -list
 
       - name: Build iOS Companion + Embedded watchOS App (iOS Simulator)
         run: |
