@@ -877,7 +877,7 @@ enum ProceduralTextureGenerator {
             roughCtx.saveGState()
             roughCtx.setAlpha(0.34)
             drawTiled(marbleRough, in: roughCtx, width: nw, height: nh, tilesX: 2.0, tilesY: 2.4)
-            roughCtx.restore()
+            roughCtx.restoreGState()
         }
 
         let normalMap: CGImage
@@ -888,7 +888,7 @@ enum ProceduralTextureGenerator {
             nCtx.saveGState()
             nCtx.setAlpha(0.62)
             drawTiled(marbleNor, in: nCtx, width: nw, height: nh, tilesX: 2.0, tilesY: 2.4)
-            nCtx.restore()
+            nCtx.restoreGState()
             normalMap = nCtx.makeImage()!
         } else {
             var hArr = Array(repeating: Float(0.5), count: nw * nh)
