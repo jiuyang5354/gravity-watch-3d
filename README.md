@@ -1,8 +1,9 @@
-# Gravity Watch 3D · 重力表盘 3D
+# Gravity Watch 3D · 重力表盘与壁纸 3D
 
 [![Apple iOS & watchOS CI Build](https://github.com/jiuyang5354/gravity-watch-3d/actions/workflows/apple-ci.yml/badge.svg)](https://github.com/jiuyang5354/gravity-watch-3d/actions/workflows/apple-ci.yml)
+[![Android Live Wallpaper CI Build](https://github.com/jiuyang5354/gravity-watch-3d/actions/workflows/android-ci.yml/badge.svg)](https://github.com/jiuyang5354/gravity-watch-3d/actions/workflows/android-ci.yml)
 
-Apple Watch 物理级 3D 重力交互演示器（WebGL ESM：`Three.js r187` + `Rapier3D 0.21.0` WASM，`pristine_v16`）与原生 **iOS 17+ 伴侣壁纸工坊 & watchOS 10+ SceneKit / Metal 双端应用工程**（`GravityWatchStudio`）。
+跨端 3D 重力物理交互与壁纸套件：包含 **WebGL ESM 3D 演示器**（`Three.js r187` + `Rapier3D 0.21.0` WASM，`pristine_v16`）、**Apple iOS 17+ 伴侣工坊 & watchOS 10+ SceneKit/Metal 应用工程**（`GravityWatchStudio`），以及 **Android 原生双引擎动态壁纸 App**（`GravityLiveWallpaper3D`）。
 
 ---
 
@@ -35,6 +36,15 @@ Apple Watch 物理级 3D 重力交互演示器（WebGL ESM：`Three.js r187` + `
   - 每次推送由 [.github/workflows/apple-ci.yml](.github/workflows/apple-ci.yml) 在官方 `macos-15`（Xcode 16 + XcodeGen）runner 上自动生成 `.xcodeproj` 并实编译 **iOS 模拟器**、**watchOS 模拟器** 与 **watchOS arm64 真机 Target**，同时上传 `GravityWatchStudio-xcodeproj` 构建产物。
 - 详细说明请参阅 [apple/README.md](apple/README.md)。
 
+### 3. Android 原生双引擎 3D 重力与裸眼视差动态壁纸（[android/](android/)）
+
+- **双渲染引擎一键热切换（`GravityWallpaperService`）**
+  - **引擎 A · 真 3D 重力物理空间（OpenGL ES 3.0 + EGL14）**：含 `01 网球`、`02 钻石`（3 回弹 5 波段白平衡色散光线追踪 + 4 色天鹅绒）、`03 篮球`、`04 金条`、`05 足球` 与 **`06 透明主板 (Cyber Circuit)`**（发光全息玻璃芯片 + 脉冲电流电路板底衬）。
+  - **引擎 B · 三层 PNG 裸眼视差（Pure `Canvas` + `TYPE_ROTATION_VECTOR`）**：支持背景层（`+5%`）、4 秒 70%–100% 呼吸辉光层（`+12%`）、反向悬浮透明前景层（`-25%`）及动态偏移软阴影，提供 `0.5x–2.0x` 景深滑块与相册自定义 3 张 PNG 图层替换，并在息屏/后台（`onVisibilityChanged(false)`）自动注销全部传感器。
+- **云端自动产出可安装 APK**
+  - 由 [.github/workflows/android-ci.yml](.github/workflows/android-ci.yml) 在 `ubuntu-latest`（JDK 17 + Gradle 8.10.2）自动执行 JVM 物理引擎单元测试与 APK 打包，可在 Actions 页面直接下载 `GravityWallpaper3D-debug-apk` 安装至 Android 手机为主屏与锁屏设置动态壁纸。
+- 详细说明请参阅 [android/README.md](android/README.md)。
+
 ---
 
 ## 本地运行 Web 3D 演示器
@@ -61,7 +71,8 @@ http://localhost:8766/
 .
 ├── .github/
 │   └── workflows/
-│       └── apple-ci.yml    # GitHub Actions macOS-15 (Xcode 16 + XcodeGen) 双端自动编译
+│       ├── apple-ci.yml    # GitHub Actions macOS-15 (Xcode 16 + XcodeGen) iOS/watchOS 编译
+│       └── android-ci.yml  # GitHub Actions ubuntu-latest (JDK 17 + Gradle 8.10) APK 编译
 ├── index.html              # 主页面结构与 importmap 配置
 ├── styles.css              # 海报式排版与 Tweaks 控件样式
 ├── boot.js                 # ESM 引导（Three.js r187 + Rapier 0.21.0 WASM 初始化）
@@ -74,13 +85,19 @@ http://localhost:8766/
 ├── assets/
 │   ├── hdr/                # studio_small_08 / studio_small_09 (CC0, Poly Haven)
 │   └── textures/           # 12 组纯净实拍/程序 PBR 贴图（红土/枫木/深木/黑大理石/草坪/丝绒/毛毡/皮革/金属/橡胶）
-└── apple/                  # iOS 17+ 伴侣工坊 & watchOS 10+ 原生 3D 应用工程
-    ├── project.yml
+├── apple/                  # iOS 17+ 伴侣工坊 & watchOS 10+ 原生 3D 应用工程
+│   ├── project.yml
+│   ├── README.md
+│   ├── APP_STORE_CHECKLIST.md
+│   ├── Shared/
+│   ├── iOSApp/
+│   ├── WatchApp/
+│   └── scripts/
+└── android/                # Android 原生 OpenGL ES 3D + 三层 PNG 视差动态壁纸工程
+    ├── build.gradle.kts
+    ├── settings.gradle.kts
     ├── README.md
-    ├── APP_STORE_CHECKLIST.md
-    ├── Shared/
-    ├── iOSApp/
-    ├── WatchApp/
+    ├── app/
     └── scripts/
 ```
 
