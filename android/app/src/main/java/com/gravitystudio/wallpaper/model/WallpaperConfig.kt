@@ -2,7 +2,6 @@ package com.gravitystudio.wallpaper.model
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.graphics.Color
 import java.io.File
 
 enum class EngineMode(val id: String, val label: String) {
@@ -22,12 +21,12 @@ enum class WallpaperTheme(
     val accentArgb: Int,
     val floorMode: Int
 ) {
-    TENNIS("tennis", "01", "网球", "EPDM 橡胶球场", Color.rgb(214, 245, 46), 0),
-    DIAMOND("diamond", "02", "钻石", "57面火彩 · 丝绒底衬", Color.rgb(168, 238, 255), 1),
-    BASKETBALL("basketball", "03", "篮球", "清漆枫木地板", Color.rgb(255, 134, 42), 2),
-    GOLD_BAR("goldBar", "04", "金条", "999.9 瑞士铸金 · 黑曜金库", Color.rgb(255, 214, 89), 3),
-    SOCCER("soccer", "05", "足球", "绿茵修剪草场", Color.rgb(154, 245, 105), 4),
-    CYBER_CIRCUIT("cyberCircuit", "06", "透明主板", "全息玻璃 · 脉冲电路板", Color.rgb(73, 226, 255), 5);
+    TENNIS("tennis", "01", "网球", "EPDM 橡胶球场", 0xFFD6F52E.toInt(), 0),
+    DIAMOND("diamond", "02", "钻石", "57面火彩 · 丝绒底衬", 0xFFA8EEFF.toInt(), 1),
+    BASKETBALL("basketball", "03", "篮球", "清漆枫木地板", 0xFFFF862A.toInt(), 2),
+    GOLD_BAR("goldBar", "04", "金条", "999.9 瑞士铸金 · 黑曜金库", 0xFFFFD659.toInt(), 3),
+    SOCCER("soccer", "05", "足球", "绿茵修剪草场", 0xFF9AF569.toInt(), 4),
+    CYBER_CIRCUIT("cyberCircuit", "06", "透明主板", "全息玻璃 · 脉冲电路板", 0xFF49E2FF.toInt(), 5);
 
     fun objectCount(density: DensityPreset): Int = when (this to density) {
         DIAMOND to DensityPreset.LITE -> 9
@@ -66,7 +65,7 @@ enum class VelvetPreset(
     OBSIDIAN(
         "obsidian",
         "玄黑天鹅绒",
-        Color.rgb(36, 39, 52),
+        0xFF242734.toInt(),
         floatArrayOf(0.0014f, 0.0016f, 0.0028f),
         floatArrayOf(0.0085f, 0.0095f, 0.0150f),
         floatArrayOf(0.095f, 0.105f, 0.140f),
@@ -75,7 +74,7 @@ enum class VelvetPreset(
     BURGUNDY(
         "burgundy",
         "高定酒红",
-        Color.rgb(122, 20, 38),
+        0xFF7A1426.toInt(),
         floatArrayOf(0.0060f, 0.0004f, 0.0012f),
         floatArrayOf(0.0420f, 0.0022f, 0.0065f),
         floatArrayOf(0.240f, 0.022f, 0.052f),
@@ -84,7 +83,7 @@ enum class VelvetPreset(
     SAPPHIRE(
         "sapphire",
         "皇家午夜蓝",
-        Color.rgb(28, 61, 143),
+        0xFF1C3D8F.toInt(),
         floatArrayOf(0.0008f, 0.0022f, 0.0085f),
         floatArrayOf(0.0055f, 0.0160f, 0.0550f),
         floatArrayOf(0.045f, 0.110f, 0.280f),
@@ -93,7 +92,7 @@ enum class VelvetPreset(
     EMERALD(
         "emerald",
         "帝王祖母绿",
-        Color.rgb(23, 102, 56),
+        0xFF176638.toInt(),
         floatArrayOf(0.0006f, 0.0045f, 0.0022f),
         floatArrayOf(0.0040f, 0.0320f, 0.0160f),
         floatArrayOf(0.035f, 0.160f, 0.088f),
