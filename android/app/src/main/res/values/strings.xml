@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="app_name">重力壁纸 3D</string>
-    <string name="wallpaper_label">Gravity 3D · 重力与视差</string>
-    <string name="wallpaper_description">原生 60fps OpenGL ES 3D 物理重力空间 + 三层 PNG 裸眼视差动态壁纸，支持透明赛博主板与自定义照片分层。</string>
-</resources>

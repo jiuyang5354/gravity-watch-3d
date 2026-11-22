@@ -25,10 +25,3 @@ DerivedData/
 # XcodeGen generated project (reproducible via `xcodegen generate`)
 apple/GravityWatchStudio.xcodeproj/
 
-# Android / Gradle build outputs
-android/.gradle/
-android/local.properties
-android/build/
-android/app/build/
-android/.idea/
-
